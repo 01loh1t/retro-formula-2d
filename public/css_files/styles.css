@@ -1,0 +1,954 @@
+/* Main Stylesheet used across index.html, game.html and rankings.html */
+
+/* GLOBAL RESET AND CSS VARIABLES */
+*{
+    margin: 0;
+}
+
+/* Colour palette used throughout the sites */
+:root {
+    --black: #0A0E1A;
+    --logo_blue: #00040E; /* header and footer background */
+    --navy_blue: #111827; /* body background */
+    --dark_blue: #2b78e4; /* borders, shadows, accents */
+    --blue: #38BDF8;
+    --light_blue: #7dd3fc; /* highlights and hover effects */
+    --white: #F1F5F9;
+    --grey: #64748B;
+}
+
+/*----------------------------------------------------------------------------------*/
+/* the line above is a section divider for clear viewing */
+/* Global body and layout applied to all pages */
+
+/* Diagonal stripe background pattern - technique from css-tricks.com/stripes-css/ */
+body{
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 50px,
+        rgba(43, 120, 228, 0.15) 50px,
+        rgba(43, 120, 228, 0.15) 51px
+    ),
+    var(--logo_blue);
+    font-family: 'Courier New', Courier, monospace;
+    overflow-x: hidden;
+}
+
+/* Container used to wrap page content */
+.container{
+    max-width: 100%;
+    margin: auto;
+    padding: 20px;
+}
+
+/* Global heading style */
+h1{
+    padding-top: 60px;
+    padding-bottom: 10px;
+    color: var(--light_blue);
+    border-bottom: 2px solid var(--light_blue);
+}
+
+/* Global paragraph style */
+p{
+    color: var(--white);
+    text-align: justify;
+    line-height: 2.5;
+}
+
+/* Global button style */
+button{
+    background-color: transparent;
+    color: var(--white);
+    font-size: 20px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    padding: 12px 30px;
+    border: 2px solid var(--light_blue);
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    transition: all 0.2s ease;
+}
+
+button:hover{
+    background-color: var(--light_blue);
+    color: var(--black);
+}
+
+/* Smaller button variant used for inline links */
+.small{
+    background-color: transparent;
+    color: var(--white);
+    font-size: 14px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    padding: 5px 10px;
+    border: 2px solid var(--light_blue);
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    transition: all 0.2s ease;
+}
+
+/*----------------------------------------------------------------------------------*/
+/* Header used on all pages */
+
+header{
+    position: sticky;
+}
+
+/* Header inner layout (logo on the left, navigation links on the right */
+#header-contents{
+    background-color: var(--logo_blue);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0;
+    border-bottom: 5px solid var(--dark_blue);
+}
+
+/* Logo image in header and footer */
+.logo{
+    max-height: 125px;
+    border-radius: 10px;
+    margin-right: 300px;
+}
+
+/* Navigation list layout */
+nav ul{
+    display: flex;
+    gap: 45px;
+    padding: 0;
+    margin: 0;
+}
+
+nav ul li{
+    list-style: none;
+}
+
+/* Navigation link styles */
+nav ul li a{
+    text-decoration: none;
+    color: var(--dark_blue);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 25px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 0.2s ease;
+}
+
+nav ul a:hover{
+    color: var(--light_blue);
+}
+
+
+/*----------------------------------------------------------------------------------*/
+/* Footer used on all pages */
+
+footer{
+    position: sticky;
+    z-index: 100;
+}
+
+#footer-contents{
+    background-color: var(--logo_blue);
+    display: flex;
+    justify-content: space-around;
+    border-top: 5px solid var(--dark_blue);
+}
+
+/* Footer column with links */
+.footer-links{
+    padding: 0.4rem;
+}
+
+.footer-links h2{
+    margin-bottom: 0.8rem;
+    color: var(--dark_blue);
+}
+
+.footer-links ul li{
+    list-style: none;
+    margin-bottom: 0.8rem;
+}
+
+.footer-links ul li a{
+    color: var(--light_blue);
+    text-decoration: none;
+    display: block;
+    margin-left: -38px;
+    text-align: left;
+}
+
+/* Footer logo and social media icons column */
+.logo_and_social-media{
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+}
+
+.logo_and_social-media .logo{
+    margin-left: 1rem;
+}
+
+.social_media{
+    display: flex;
+    gap: 15px;
+}
+
+.social_media img{
+    width: 20px;
+    height: 20px;
+}
+
+/* Copyright bar at the very bottom */
+.copyright{
+    width: 100%;
+    background-color: var(--logo_blue);
+    padding :1px;
+    border-top: 1px solid var(--dark_blue);
+}
+
+.copyright p{
+    color: var(--dark_blue);
+    font-size: 12px;
+    text-align: center;
+}
+
+/*----------------------------------------------------------------------------------*/
+/* MODALS used on index.html and game.html */
+
+/* Dark overlay behind modal */
+.modal-overlay{
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+}
+
+/* Show modal when active class is added by JavaScript (script.js) */
+.modal-overlay.active{
+    display: flex;
+}
+
+/* White box inside the modal */
+.modal-box{
+    position: relative;
+    margin: 2rem auto;
+    width: 800px;
+    min-height: 500px;
+}
+
+/* X close button in top right of modal */
+.close-btn {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 28px;
+    cursor: pointer;
+    color: var(--white);
+    z-index: 1000;
+    transition: color 0.2s ease;
+    line-height: 1;
+}
+
+.close-btn:hover{
+    color: var(--light_blue);
+}
+
+/*----------------------------------------------------------------------------------*/
+/* FIELD ERROR AND SUCCESS MESSAGES used on index.html */
+
+.field-error{
+    display: block;
+    color: #ff6b6b;
+    font-size: 11px;
+    font-family: 'Courier New', Courier, monospace;
+    min-height: 16px;
+    margin-top: 3px;
+}
+
+
+/*----------------------------------------------------------------------------------*/
+/* TRACK AND TEAM SELECTION MODAL used on index.html and game.html */
+
+#trackModalBox{
+    background-color: var(--logo_blue);
+    border: 2px solid var(--light_blue);
+    box-shadow: 0 0 30px var(--dark_blue);
+    border-radius: 10px;
+    padding: 40px;
+    position: relative;
+    width: 850px;
+}
+
+#trackModalBox h2{
+    color:var(--light_blue);
+    text-align: center;
+    letter-spacing: 0.08em;
+    margin-bottom: 30px;
+}
+
+/* Three track cards side by side */
+#trackCards{
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+}
+
+/* Individual track card */
+.track-card{
+    width: 244px;
+    height: 440px;
+    border: 2px solid var(--light_blue);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+}
+
+.track-card:hover{
+    box-shadow: 0 0 20px var(--light_blue);
+}
+
+.track-card img{
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+}
+
+/* Track name label at the bottom of card */
+.track-card p{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    color: var(--white);
+    background-color: rgba(0, 0, 0, 0.6);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.2rem;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    padding: 15px 0;
+    margin: 0;
+}
+
+/* Six team cards in a grid */
+#teamCards{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+/* Individual team logo card */
+.team-card{
+    width: 150px;
+    height: 150px;
+    border: 2px solid var(--light_blue);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+    background-color: var(--navy_blue);
+    padding: 10px;
+}
+
+.team-card:hover{
+    box-shadow: 0 0 20px var(--light_blue);
+}
+
+.team-card img{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/*----------------------------------------------------------------------------------*/
+/* INDEX.HTML SPECIFIC STYLES */
+
+/* First row: game banner image and about game description */
+#first-row{
+    display: flex;
+    align-items: flex-start;
+    gap: 40px;
+}
+
+.game_banner{
+    padding-top: 50px;
+    flex: 1;
+}
+
+.about_game{
+    padding-right:2rem;
+    flex: 1;
+}
+
+/* Pulsing glow effect on the game banner image */
+.game_banner img{
+    width: 85%;
+    height: auto;
+    margin-left: 3rem;
+    box-shadow: 0 2px 60px var(--dark_blue);
+}
+
+/* Statistic banner with 3 items */
+#banner ul{
+    list-style: none;
+    display: flex;
+    padding: 0;
+    margin-top: 18px;
+    width: 100%;
+}
+
+#banner ul li{
+    color: var(--logo_blue);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 25px;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+    padding: 10px 0;
+    background-color: var(--dark_blue);
+    border-right: 20px solid var(--logo_blue);
+}
+
+#banner ul li:last-child{
+    border-right: none;
+}
+
+/* Second row: login/signup card and reviews card */
+#second-row{
+    display: flex;
+    gap: 20px;
+    scroll-margin-top: 150px;
+}
+
+/* Login/signup card */
+.signin-signup{
+    height: 250px;
+    display: flex;
+    border-radius: 8px;
+    background-color: var(--logo_blue);
+    border: 2px solid var(--light_blue);
+    box-shadow: 0 0 20px var(--dark_blue);
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 2rem;
+}
+
+.signin-signup h2{
+    color: var(--white);
+}
+
+.signin-signup p{
+    color: var(--white);
+    font-size: 14px;
+    max-width: 300px;
+}
+
+.signin-signup button{
+    background-color: transparent;
+    color: var(--white);
+    font-size: 20px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    padding: 12px 30px;
+    border: 2px solid var(--light_blue);
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    transition: all 0.2s ease;
+}
+
+.signin-signup button:hover{
+    background-color: var(--light_blue);
+    color: var(--black);
+}
+
+/* Container for sign up/login buttons */
+#signButtons{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+}
+
+/* Reviews card */
+.Reviews-Card{
+    border-radius: 8px;
+    background-color: var(--navy_blue);
+    border: 2px solid var(--light_blue);
+    box-shadow: 0 0 20px var(--dark_blue);
+    flex: 1;
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+/* Individual review slide - hidden by default */
+.review-slide{
+    padding: 20px;
+    display: none;
+}
+
+/* Active review slide - shown by JavaScript (script.js) */
+.review-slide.active{
+    display: block;
+}
+
+.review-slide h2, .review-slide.active h2{
+    color: var(--white);
+}
+
+/* Track showcase section heading */
+#Track-title h1{
+    padding-top: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 30px;
+}
+
+/* Three flippable track cards layout */
+.Track-cards{
+    display: flex;
+    justify-content: center;
+    gap: 10rem;
+}
+
+/* Individual flip card container */
+.card{
+    perspective: 1000px;
+    width: 244px;
+    height: 440px;
+}
+
+/* Inner container that flips on hover */
+.card-inner{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.8s ease;
+}
+
+/* Front face of card */
+.card-front img{
+    width:100%;
+    height: 440px;
+    object-fit: fill;
+}
+
+.card-front h2{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    color: var(--white);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.5rem;
+    margin: 0;
+    padding: 40px 0;
+}
+
+/* Flip the card on hover */
+.card:hover .card-inner{
+    transform: rotateY(180deg);
+}
+
+/* Styles for both front and back faces */
+.card-front, .card-back{
+    background-color: black;
+    border: 2px solid var(--light_blue);
+    border-radius: 10px;
+    position: absolute;
+    width: 244px;
+    height: 100%;
+    backface-visibility: hidden;
+    overflow: hidden;
+}
+
+/* Back face is rotated 180 degrees by default */
+.card-back{
+    transform: rotateY(180deg);
+}
+
+.card-back img{
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+}
+
+.card-back h2{
+    text-align: center;
+    color: var(--light_blue);
+    font-family: 'Courier New', Courier, monospace;
+    padding: 5px;
+    border-top: 2px solid var(--light_blue);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.card-back p{
+    color: var(--white);
+    font-size: 14px;
+    padding: 10px;
+    line-height: 1.8;
+    text-align: center;
+    margin: 0;
+}
+
+/* Flag icon inside the card heading */
+.card-back h2 img{
+    height: 10px;
+    width: auto;
+}
+
+/* Registration and login form used inside modals on index.html */
+.create-account{
+    position: relative;
+    margin: auto;
+    padding: 20px;
+    max-width: 800px;
+    min-height: 540px;
+    height: 540px;
+    overflow-y: auto;
+    background-image: url(../assets/cover-signin-up.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    box-shadow: 0 2px 20px var(--dark_blue);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.create-account h2{
+    color: var(--light_blue);
+    letter-spacing: 0.08em;
+    font-size: 35px;
+}
+
+.create-account label{
+    color: var(--white);
+    font-size: 16px;
+}
+
+/* Form input fields */
+.create-account input{
+    width: 250px;
+    padding: 5px;
+    margin-top: 4px;
+    background-color: var(--black);
+    border: 1px solid var(--light_blue);
+    border-radius: 6px;
+    color: var(--white);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    outline: none;
+}
+
+.create-account input:focus{
+    border-color: var(--dark_blue);
+    box-shadow: 0 0 8px var(--dark_blue);
+}
+
+/* Narrower input for age field */
+.name-age input[type="number"]{
+    width: 100px;
+}
+
+/* Submit button inside the form */
+.create-account input[type="submit"]{
+    background-color: transparent;
+    color: var(--light_blue);
+    font-weight: bold;
+    font-size: 16px;
+    border: 2px solid var(--light_blue);
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    transition: all 0.2s ease;
+    margin-top: 0.5rem;
+}
+
+.create-account input[type="submit"]:hover{
+    background-color: var(--light_blue);
+    color: var(--logo_blue);
+}
+
+.create-account p a{
+    color: var(--white);
+    text-decoration: none;
+}
+
+/* Name and age fields side by side */
+.name-age{
+    display: flex;
+    gap:1rem;
+}
+
+/* Switch modal link styled as a button */
+.gotologin{
+    background-color: transparent;
+    color: var(--light_blue);
+    font-weight: bold;
+    font-size: 16px;
+    border: 2px solid var(--light_blue);
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    transition: all 0.2s ease;
+    margin-top: 0.5rem;
+    padding: 5px;
+}
+
+.gotologin:hover{
+    background-color: var(--light_blue);
+    color: var(--logo_blue);
+}
+
+/*----------------------------------------------------------------------------------*/
+/* RANKINGS.HTML SPECIFIC STYLES */
+
+/* Main rankings content box */
+#rankings-content{
+    max-width: 1000px;
+    min-height: 500px;
+    margin: 2rem auto;
+    background-color: var(--logo_blue);
+    border: 2px solid var(--light_blue);
+    border-radius: 12px;
+    box-shadow: 0 2px 20px var(--dark_blue);
+    padding: 2rem;
+}
+
+/* Filter bar with track dropdown and search input */
+.filter-bar{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Track dropdown selector */
+.track-select{
+    background-color: var(--black);
+    color: var(--light_blue);
+    border: 2px solid var(--light_blue);
+    border-radius: 6px;
+    padding: 8px 12px;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Search bar container */
+.search-bar{
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Username search input */
+.search-username{
+    flex: 1;
+    max-width: 200px;
+    background-color: var(--logo_blue);
+    color: var(--white);
+    border: 2px solid var(--light_blue);
+    border-radius: 6px;
+    padding: 8px 12px;
+    outline: none;
+}
+
+.search-button{
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+/* Rankings table */
+.rankings-table{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.rankings-table th{
+    background-color: var(--logo_blue);
+    color: var(--blue);
+    padding: 12px;
+    text-align: left;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    pointer-events: none;
+}
+
+.rankings-table td{
+    padding: 10px 12px;
+    color: var(--white);
+    border-bottom: 1px solid var(--dark_blue);
+}
+
+/* Alternating row colours */
+.rankings-table tbody tr:nth-child(even){
+    background-color: var(--navy_blue);
+}
+
+.rankings-table tbody tr:hover{
+    background-color: var(--dark_blue);
+}
+
+/* Highlighted row when searching for a username */
+.rankings-table tbody tr.highlight{
+    background-color: var(--dark_blue);
+    outline: 2px solid var(--light_blue);
+    transition: all 0.3s ease;
+}
+
+/* Scrollable table wrapper */
+.rankings-table-wrapper{
+    max-height: 500px;
+    overflow-y: scroll;
+}
+
+/*----------------------------------------------------------------------------------*/
+/* GAME.HTML SPECIFIC STYLES */
+
+#game-page{
+    padding: 1rem 2rem;
+}
+
+/* Track name title above the game */
+#track-title{
+    text-align: center;
+}
+
+/* Phaser game canvas container */
+#game-container{
+    width: 95%;
+    height: 600px;
+    background-color: black;
+    border: 2px solid var(--blue);
+    border-radius: 8px;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    max-width: 1536px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Start/Restart button below the game */
+#startBtn{
+    display: block;
+    margin: 15px auto 0 auto;
+    padding: 2px 10px;
+    font-size: 18px;
+    min-width: 180px;
+}
+
+/* Info section below game divided into 2 columns */
+#game-info{
+    display: flex;
+    gap: 2rem;
+}
+
+/* Left column: track details and controls */
+.game-left{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.game-left h3{
+    color: var(--light_blue);
+    border-bottom: 1px solid var(--dark_blue);
+    padding-bottom: 4px;
+    margin: 0;
+}
+
+.game-left p{
+    font-size: 14px;
+    color: var(--white);
+    margin: 0;
+}
+
+/* Right column: personal best lap and lap times table */
+.game-right{
+    flex:1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.game-right p{
+    font-size: 14px;
+    color: var(--white);
+    margin: 0;
+}
+
+.game-right h3{
+    color: var(--light_blue);
+    border-bottom: 1px solid var(--dark_blue);
+    padding-bottom: 4px;
+    margin: 0;
+}
+
+/* Personal best display */
+#personal-best{
+    color: var(--light_blue);
+    font-weight: bold;
+}
+
+/* Previous lap times table */
+.laptimes-table{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.laptimes-table th{
+    background-color: var(--logo_blue);
+    color: var(--blue);
+    padding: 8px 12px;
+    text-align: left;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+.laptimes-table td{
+    padding: 10px 12px;
+    color: var(--white);
+    border-bottom: 1px solid var(--dark_blue);
+    font-size: 13px;
+}
+
+/* Alternating row colours for lap times */
+.laptimes-table tbody tr:nth-child(even){
+    background-color: var(--navy_blue);
+}

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Phaser.js game engine loaded from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@v3.90.0/dist/phaser.js"></script>
+
+    <!-- JavaScript files linked -->
+    <!-- api.js is the small helper every page uses to talk to the server. Loaded first. -->
+    <script src="/js_files/api.js" defer></script>
+
+    <!-- game_ui.js handles page user interface. It is loaded before game.js so that variables are available to it -->
+    <script src="/js_files/game_ui.js" defer></script>
+
+    <!-- game.js contains the Phaser game engine and Car class -->
+    <script src="/js_files/game.js" defer></script>
+
+    <!-- ui_effects.js handles page interactions -->
+    <script src="/js_files/ui_effects.js" defer></script>
+
+    <!-- Main stylesheet linked -->
+    <link href="/css_files/styles.css" rel="stylesheet">
+
+    <title>Retro Formula 2D | Game Page</title>
+
+    <!-- Favicon displayed on browser tab -->
+    <link rel="icon" type="image/x-icon" href="/assets/main_logo.png">
+
+</head>
+
+<body>
+
+    <!-- Header with logo and navigation links -->
+    <header>
+        <div class="container" id="header-contents">
+            <img class="logo" src="/assets/main_logo.png" alt="Game website logo">
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/rankings.html">Rankings</a></li>
+                    <li><a href="#footer-contents">Updates</a></li>
+                    <li><a href="#footer-contents">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+
+        <div class="container" id="game-page">
+
+            <!-- TRACK NAME is updated by game_ui.js based on selected track -->
+            <h1 id="track-title">TRACK NAME</h1>
+
+            <!-- START / RESTART game button (text changes after first click) -->
+            <button id="startBtn">START RACE ▶</button>
+
+            <!-- Phaser game canvas is injected here by game.js -->
+            <div id="game-container"></div>
+
+            <!-- Information section below the game -->
+            <div id="game-info">
+
+                <!-- Left column consists of track details and how to play -->
+                <div class="game-left">
+
+                    <!-- Track description updated by game_ui.js -->
+                    <h3>TRACK DETAILS</h3>
+                    <p id="track-details">Track details will appear here.</p>
+
+                    <h3>HOW TO PLAY</h3>
+                    <p>Use the arrow keys to steer your car, stay on track and complete the lap as fast as possible.
+                        <br>Press the start button and cross the line to start a lap. After lap, a cooldown lap is started before starting the next race lap. A restart button is also available in case race lap needs to be restarted or the user wants to skip the cooldown lap.
+                    </p>
+
+                    <h3>CONTROLS</h3>
+                    <p>
+                        ↑ Up &nbsp; ↓ Down &nbsp; ← Left &nbsp; → Right<br>
+                        Continue pressing key(s) to accelerate, release to decelerate<br>
+                        Two buttons can be pressed simultaneously.
+                    </p>
+
+
+                </div>
+
+                <!-- Right column consists of switch track button, personal best lap and lap times table -->
+                <div class="game-right">
+
+                    <!-- SWITCH TRACK buttons allows the user to change track and team without going back to index.html -->
+                    <!-- It opens the track modal and team selection modal -->
+                    <button class="switch-track-button">SWITCH TRACK ▼</button>
+
+                    <!-- Personal best lap time for a user loaded from localStorage by game_ui.js-->
+                    <p>Personal best lap: <span id="personal-best"></span></p>
+
+                    <!-- Last 5 lap times for a user inserted after each lap by game_ui.js -->
+                    <h3>Previous Lap times</h3>
+                    <table class="laptimes-table">
+                        <thead>
+                            <tr>
+                                <th>Lap Number</th>
+                                <th>Lap Time</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="laptimes-body">
+
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Track and team selection modal (appears after clicking SWITCH TRACK button) -->
+    <div class="modal-overlay" id="trackModal">
+        <div class="modal-box" id="trackModalBox">
+            <span class="close-btn" id="closeTrack">&times;</span>
+
+            <!-- Track selection shown first -->
+            <div id="trackSelection">
+                <h2>CHOOSE TRACK</h2>
+                <div id="trackCards">
+                    <div class="track-card" id="monza">
+                        <img src="/assets/tracks/monza-cover.png">
+                        <p>MONZA</p>
+                    </div>
+
+                    <div class="track-card" id="silverstone">
+                        <img src="/assets/tracks/silverstone-cover.png">
+                        <p>SILVERSTONE</p>
+                    </div>
+
+                    <div class="track-card" id="monaco">
+                        <img src="/assets/tracks/monaco-cover.png">
+                        <p>MONACO</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Team selection shown next, then game.html is loaded with the user choices -->
+            <div id="teamSelection" style="display: none;">
+                <h2>CHOOSE TEAM</h2>
+                <div id="teamCards">
+                    <div class="team-card" id="mercedes">
+                        <img src="/assets/team logos/mercedes_logo.png">
+                    </div>
+
+                    <div class="team-card" id="redbull">
+                        <img src="/assets/team logos/red_bull_logo.png">
+                    </div>
+
+                    <div class="team-card" id="ferrari">
+                        <img src="/assets/team logos/ferrari_logo.png">
+                    </div>
+
+                    <div class="team-card" id="mclaren">
+                        <img src="/assets/team logos/mclaren_logo.png">
+                    </div>
+
+                    <div class="team-card" id="astonmartin">
+                        <img src="/assets/team logos/Aston_Martin_logo.png">
+                    </div>
+
+                    <div class="team-card" id="audi">
+                        <img src="/assets/team logos/audi_logo.png">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer with logo, social media links and contact information -->
+    <footer>
+
+        <div class="container" id="footer-contents">
+
+            <div class="logo_and_social-media">
+
+                <img class= "logo" src="/assets/main_logo.png" alt="Game website logo">
+                <br><br>
+
+                <!-- Social media icon links-->
+                <div class="social_media">
+                    <a href="#"><img src="/assets/socialmedia/youtube.png"></a>
+                    <a href="#"><img src="/assets/socialmedia/instagram.png"></a>
+                    <a href="#"><img src="/assets/socialmedia/tiktok.png"></a>
+                    <a href="#"><img src="/assets/socialmedia/whatsapp.png"></a>
+                    <a href="#"><img src="/assets/socialmedia/twitter.png"></a>
+                </div>
+                
+            </div>
+
+
+            <div class="footer-links">
+                <h2>LATEST UPDATES</h2>
+
+                <!-- Newsroom and Videos links -->
+                <ul>
+                    <li><a href="#">Newsroom</a></li>
+                    <li><a href="#">Videos</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h2>CONNECT WITH US</h2>
+
+                <!-- Contact links -->
+                <ul>
+                    <li><a href="#">Phone</a></li>
+                    <li><a href="#">Email</a></li>
+                    <li><a href="#">Address</a></li>
+                </ul>
+            </div>                
+        </div>
+
+        <!-- Copyright -->
+        <div class="copyright">
+            <p>&copy; 2026 RETRO FORMULA 2D. All rights reserved.</p>
+        </div>
+
+    </footer>
+</body>
+</html>

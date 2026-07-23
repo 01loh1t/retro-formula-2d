@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- JavaScript files linked (rankings.js handles table population and search functionality, ui_effects.js handles page interactions) -->
+    <!-- api.js is the small helper every page uses to talk to the server. Loaded first. -->
+    <script src="/js_files/api.js" defer></script>
+
+    <script src="/js_files/rankings.js" defer></script>
+    <script src="/js_files/ui_effects.js" defer></script>
+
+    <!-- Main stylesheet linked -->
+    <link href="/css_files/styles.css" rel="stylesheet">
+
+    <title>Retro Formula 2D | Rankings</title>
+
+    <!-- Favicon displayed on browser tab -->
+    <link rel="icon" type="image/x-icon" href="/assets/main_logo.png">
+
+</head>
+
+<body>
+
+    <!-- Header with logo and navigation links -->
+    <header>
+        <div class="container" id="header-contents">
+            <img class="logo" src="/assets/main_logo.png" alt="Game website logo">
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/rankings.html">Rankings</a></li>
+                    <li><a href="#footer-contents">Updates</a></li>
+                    <li><a href="#footer-contents">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- rankings content box consisting of a track dropdown, a username search bar and a table -->
+        <!-- rankings.js handles the track dropdown, search functionality and table population -->
+        <div class="container" id="rankings-content">
+
+            <!-- Filter bar (track dropdown and username search bar)-->
+            <div class="filter-bar">
+
+                <!-- Dropdown to filter rankings by track -->
+                <select class="track-select">
+                    <option value="">Select Track</option>
+                    <option value="monza">Monza</option>
+                    <option value="silverstone">Silverstone</option>
+                    <option value="monaco">Monaco</option>
+                </select>
+
+                <!-- Search bar to find a specific username in the table -->
+                <div class="search-bar">
+                    <input type="text" class="search-username" placeholder="Search Username">
+                    <button class="search-button">SEARCH</button>
+                </div>
+
+            </div>
+
+            <!-- Scrollable rankings table populated by rankings.js -->
+            <div class="rankings-table-wrapper">
+                <table class="rankings-table">
+                    <thead>
+                        <tr>
+                            <th>Position</th>
+                            <th>Username</th>
+                            <th>Team</th>
+                            <th>Laptime</th>
+                        </tr>
+                    </thead>
+
+                    <!-- Table rows inserted here by JavaScript -->
+                    <tbody id="table-body">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer with logo, social media links and contact information -->
+    <footer>
+
+        <div class="container" id="footer-contents">
+
+            <div class="logo_and_social-media">
+
+                <img class= "logo" src="/assets/main_logo.png" alt="Game website logo">
+                <br><br>
+
+                <!-- Social media icon links-->
+                <div class="social_media">
+                    <a href="#"><img src="/assets/socialmedia/youtube.png"></a>
+                    <a href="#"><img src="/assets/socialmedia/instagram.png"></a>
+                    <a href="#"><img src="/assets/socialmedia/tiktok.png"></a>
+                    <a href="#"><img src="/assets/socialmedia/whatsapp.png"></a>
+                    <a href="#"><img src="/assets/socialmedia/twitter.png"></a>
+                </div>
+                
+            </div>
+
+
+            <div class="footer-links">
+                <h2>LATEST UPDATES</h2>
+
+                <!-- Newsroom and Videos links -->
+                <ul>
+                    <li><a href="#">Newsroom</a></li>
+                    <li><a href="#">Videos</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h2>CONNECT WITH US</h2>
+
+                <!-- Contact links -->
+                <ul>
+                    <li><a href="#">Phone</a></li>
+                    <li><a href="#">Email</a></li>
+                    <li><a href="#">Address</a></li>
+                </ul>
+            </div>                
+        </div>
+
+        <!-- Copyright -->
+        <div class="copyright">
+            <p>&copy; 2026 RETRO FORMULA 2D. All rights reserved.</p>
+        </div>
+
+    </footer>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- JavaScript files linked (registration_login.js handles forms, script.js and ui_effects.js handles page interactions) -->
+    <!-- api.js is the small helper every page uses to talk to the server. Loaded first. -->
+    <script src="/js_files/api.js" defer></script>
+
+    <script src="/js_files/registration_login.js" defer></script>
+    <script src="/js_files/script.js" defer></script>
+    <script src="/js_files/ui_effects.js" defer></script>
+
+    <!-- Main stylesheet linked -->
+    <link href="/css_files/styles.css" rel="stylesheet">
+
+    <title>Retro Formula 2D | Home Page</title>
+
+    <!-- Favicon displayed on browser tab-->
+    <link rel="icon" type="image/x-icon" href="/assets/main_logo.png">
+
+</head>
+
+<body>
+
+    <!-- Header with logo and navigation links -->
+    <header>
+        <div class="container" id="header-contents">
+            <img class="logo" src="/assets/main_logo.png" alt="Game website logo">
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/rankings.html">Rankings</a></li>
+                    <li><a href="#footer-contents">Updates</a></li>
+                    <li><a href="#footer-contents">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- First row consisting of game banner image on the left, game description and play button on the right -->
+        <div class="container" id="first-row">
+
+            <div class="game_banner">
+                <img src="/assets/cover-main.png" alt="cover">
+            </div>
+
+            <div class="about_game">
+                <h1>ABOUT GAME</h1><br>
+                <p>RETRO FORMULA 2D is a two-dimensional retro-inspired racing game built
+                    around speed, control and precision. Players race through Formula 1 tracks,
+                    avoiding going off-track and optimising every turn to achieve their perfect
+                    lap and compete against other's best lap times.
+                </p>
+                <br><br>
+
+                <!-- PLAY NOW button opens track modal if user is logged in, else it shows an error message -->
+                <button type="button" id="playNow">▶ PLAY NOW</button>
+                <p class="field-error" id="playMsg"></p>
+                <br><br>
+
+                <!-- Dynamic message based on login status. Button click scrolls to the SIGN IN and LOG IN or LOG OUT buttons -->
+                <p class="play-note" id="playNote">Not registered?/Sign In: <a href="#second-row"><button class="small">Click here</button></a></p>
+
+            </div>
+            
+        </div>
+
+        <br><br>
+
+        <!-- Decorative statistic banner -->
+        <div class="container" id="banner">
+            <ul>
+                <li>3<br>LEGENDARY<br>TRACKS</li>
+                <li>6<br>TEAMS</li>
+                <li>FREE<br>TO<br>PLAY</li>
+            </ul>
+        </div>
+
+        <br><br>
+
+        <!-- Second row consists of sign up/login card on the left and user review cards on the right -->
+        <div class="container" id="second-row">
+
+            <!-- sign up/login card. Content changes depending on whether the user is logged in -->
+            <div class="signin-signup">
+
+                <!-- Message and Logout shown when logged in, hidden by default-->
+                <p id="welcomeMessage" style="display: none;"></p>
+                <button id="logoutBtn" style="display: none;">LOGOUT</button>
+
+                <!-- Shown when not logged in -->
+                <div id="signButtons">
+                    <h2>JOIN THE FUN</h2>
+                    <p>Create your account to track your lap times and climb the live rankings.</p>
+                    <button type="button" id="openSignup">SIGN UP</button>
+                    <br><br>
+                    <p>Already have an account? Sign in.</p>
+                    <button type="button" id="openLogin">LOGIN</button>
+                </div>
+
+            </div>
+
+            <!-- Automatic rotating review cards, cycled every 5 seconds by JavaScript (script.js) -->
+            <div class="Reviews-Card">
+
+                <div class="review-slide active">
+                    <h2>REVIEWS</h2>
+                    <p class="review">"This game is by far the best 2D racing game of 2026. I keep coming back to beat my personal lap record."</p><br>
+                    <p class="reviewer-details"><strong>-- Lohit Durbarry </strong><br>Rank #1 - Monza Track</p>
+                </div>
+
+                <div class="review-slide">
+                    <h2>REVIEWS</h2>
+                    <p class="review">"It was such a great experience for me. The controls were easy to understand and the retro graphics are top-notch."</p><br>
+                    <p class="reviewer-details"><strong>-- Gary Smith </strong><br>Rank #1 - Monaco Circuit</p>
+                </div>
+
+                <div class="review-slide">
+                    <h2>REVIEWS</h2>
+                    <p class="review">"I like how the Silverstone track is included in this game as it is from my country. It adds a personal touch and makes the game more enjoyable."</p><br>
+                    <p class="reviewer-details"><strong>-- James Miller </strong><br>Rank #1 - Silverstone Circuit</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Sign up modal (hidden by default, opened when sign up button is clicked - JavaScript in registration_login.js) -->
+        <div class="modal-overlay" id="signupModal">
+            <div class="modal-box">
+
+                <form class="create-account">
+
+                    <!-- Closes the modal -->
+                    <span class="close-btn" id="closeSignup">&times;</span>
+                    <h2>CREATE ACCOUNT</h2><br>
+
+                    <!-- name and age on the same row -->
+                    <div class="name-age">
+                        <label>Full name<br><input id="fullname" type="text">
+
+                            <!-- error message space for the field -->
+                            <span class="field-error" id="fullname-error"></span>
+                        </label>
+
+                        <label>Age<br><input id="age" type="number">
+
+                            <!-- error message space for the field -->
+                            <span class="field-error" id="age-error"></span>
+                        </label>
+                    </div>
+                    
+                    <!--email, username, password, password_reentered on separate rows with their error message spaces-->
+                    <label>Email<br><input id="email" type="text">
+                        <span class="field-error" id="email-error"></span>
+                    </label>
+
+                    <label>Username<br><input id="username" type="text">
+                        <span class="field-error" id="username-error"></span>
+                    </label>
+
+                    <label>Password<br><input id="password" type="password">
+                        <span class="field-error" id="password-error"></span>
+                    </label>
+
+                    <label>Re-enter Password<br><input id="password_reentered" type="password">
+                        <span class="field-error" id="password_reentered-error"></span>
+                    </label>
+
+                    <!-- Success message shown on successful registration -->
+                    <span class="field-error" id="signup-success"></span>
+                    <input type="submit" value="SIGN UP">
+
+                    <!-- Switch to login modal in case user already has an account -->
+                    <p>Already a member? <a class="gotologin" id="switchToLogin">Click here</a></p>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- Log In modal (hidden by default, opened when Log In button is clicked - JavaScript in registration_login.js) -->
+        <div class="modal-overlay" id="loginModal">
+            <div class="modal-box">
+                <form class="create-account" id="loginForm">
+                    <h2>LOG IN</h2><br>
+
+                    <!-- Closes the modal -->
+                    <span class="close-btn" id="closeLogin">&times;</span>
+                    <br>
+
+                    <!-- Username and passord on separate rows -->
+                    <label>Username<br><input type="text" id="login-username">
+                        <br><br>
+                    </label>
+
+                    <label>Password<br><input type="password" id="login-password">
+                    </label>
+                    <br>
+
+                    <!-- Error message shown for wrong credentials -->
+                    <span class="field-error" id="login-error"></span>
+                    <br>
+
+                    <!-- Success message shown on successful login -->
+                    <span class="field-error" id="login-success"></span>
+                    <input type="submit" value="SIGN IN"><br><br>
+                    <p>Don't have an account? <a class="gotologin" id="switchToSignup">Click here</a></p>
+
+                </form>
+            </div>
+
+        </div>
+
+        <!-- Track showcase section Heading -->
+        <div class="container" id="Track-title">
+            <h1>DISCOVER OUR TRACKS</h1>
+        </div>
+
+        <!-- Third row consists of 3 flippable track cards which reveals track details -->
+        <div class="container" id="third-row">
+            <div class="Track-cards">
+
+                <!-- Monza track card -->
+                <div class="card">
+
+                    <div class="card-inner">
+
+                        <div class="card-front">
+                            <img src="/assets/tracks/monza-cover.png">
+                            <h2>MONZA</h2>
+                        </div>
+
+                        <div class="card-back">
+                            <img src="/assets/tracks/Monza.png" alt="Monza">
+                            <h2><img src="/assets/flags/italy.png">Monza</h2>
+                            <p>The Autodromo Nazionale Monza is a 5.793km race track in Italy. It consists of long straights, simple chicanes and fewer technical corners overall.</p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Silverstone track card -->
+                <div class="card">
+
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <img src="/assets/tracks/silverstone-cover.png">
+                            <h2>SILVERSTONE</h2>
+                        </div>
+
+                        <div class="card-back">
+                            <img src="/assets/tracks/Silverstone.png" alt="Silverstone">
+                            <h2><img src="/assets/flags/england.png">Silverstone</h2>
+                            <p>The Silverstone Circuit is a 5.891km race circuit in England. It is a fast flowing circuit with high-speed corners and consists of tricky sections like Maggotts/Becketts.</p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Monaco track card -->
+                <div class="card">
+
+                    <div class="card-inner">
+
+                        <div class="card-front">
+                            <img src="/assets/tracks/monaco-cover.png">
+                            <h2>MONACO</h2>
+                        </div>
+
+                        <div class="card-back">
+                            <img src="/assets/tracks/Monaco.png" alt="Monaco">
+                            <h2><img src="/assets/flags/monaco.png">Monaco</h2>
+                            <p>Circuit de Monaco, also referred as Monte Carlo, is a 3.337km circuit in Monaco. It is a tight street circuit consisting of sharp corners and barriers close to track edges.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <br><br>
+
+        </div>
+
+    </main>
+
+    <!-- Track and team selection modal (appears after clicking PLAY NOW button) -->
+    <div class="modal-overlay" id="trackModal">
+        <div class="modal-box" id="trackModalBox">
+            <span class="close-btn" id="closeTrack">&times;</span>
+
+            <!-- Track selection shown first -->
+            <div id="trackSelection">
+                <h2>CHOOSE TRACK</h2>
+                <div id="trackCards">
+                    <div class="track-card" id="monza">
+                        <img src="/assets/tracks/monza-cover.png">
+                        <p>MONZA</p>
+                    </div>
+
+                    <div class="track-card" id="silverstone">
+                        <img src="/assets/tracks/silverstone-cover.png">
+                        <p>SILVERSTONE</p>
+                    </div>
+
+                    <div class="track-card" id="monaco">
+                        <img src="/assets/tracks/monaco-cover.png">
+                        <p>MONACO</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Team selection shown next, then game.html is loaded with the user choices -->
+            <div id="teamSelection" style="display: none;">
+                <h2>CHOOSE TEAM</h2>
+                <div id="teamCards">
+                    <div class="team-card" id="mercedes">
+                        <img src="/assets/team logos/mercedes_logo.png">
+                    </div>
+
+                    <div class="team-card" id="redbull">
+                        <img src="/assets/team logos/red_bull_logo.png">
+                    </div>
+
+                    <div class="team-card" id="ferrari">
+                        <img src="/assets/team logos/ferrari_logo.png">
+                    </div>
+
+                    <div class="team-card" id="mclaren">
+                        <img src="/assets/team logos/mclaren_logo.png">
+                    </div>
+
+                    <div class="team-card" id="astonmartin">
+                        <img src="/assets/team logos/Aston_Martin_logo.png">
+                    </div>
+
+                    <div class="team-card" id="audi">
+                        <img src="/assets/team logos/audi_logo.png">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer with logo, social media links and contact information -->
+    <footer>
+
+        <div class="container" id="footer-contents">
+
+            <div class="logo_and_social-media">
+
+                <img class= "logo" src="/assets/main_logo.png" alt="Game website logo">
+                <br><br>
+
+                <!-- Social media icon links-->
+                <div class="social_media">
+                    <a href="#"><img src="/assets/socialmedia/youtube.png"></a>
+                    <a href="#"><img src="/assets/socialmedia/instagram.png"></a>
+                    <a href="#"><img src="/assets/socialmedia/tiktok.png"></a>
+                    <a href="#"><img src="/assets/socialmedia/whatsapp.png"></a>
+                    <a href="#"><img src="/assets/socialmedia/twitter.png"></a>
+                </div>
+                
+            </div>
+
+
+            <div class="footer-links">
+                <h2>LATEST UPDATES</h2>
+
+                <!-- Newsroom and Videos links -->
+                <ul>
+                    <li><a href="#">Newsroom</a></li>
+                    <li><a href="#">Videos</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h2>CONNECT WITH US</h2>
+
+                <!-- Contact links -->
+                <ul>
+                    <li><a href="#">Phone</a></li>
+                    <li><a href="#">Email</a></li>
+                    <li><a href="#">Address</a></li>
+                </ul>
+            </div>                
+        </div>
+
+        <!-- Copyright -->
+        <div class="copyright">
+            <p>&copy; 2026 RETRO FORMULA 2D. All rights reserved.</p>
+        </div>
+
+    </footer>
+</body>
+</html>

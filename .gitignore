@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Secrets - never commit this file, it holds your database password and token secret
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
