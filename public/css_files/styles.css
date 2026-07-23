@@ -958,33 +958,47 @@ footer{
 /* the line above is a section divider for clear viewing */
 /* ON-SCREEN TOUCH CONTROLS (game.html, phones and tablets only) */
 
-/* Hidden by default. touch_controls.js adds .visible only on touchscreen devices,
-   so a laptop with a mouse keeps the full track in view and uses the arrow keys. */
+/* Fixed to the screen rather than to the game box. The game box is 600px tall, so on a
+   phone it is taller than the visible screen - controls placed inside it scrolled away
+   as soon as the player moved down the page. Fixed keeps them under the thumb always. */
 #touch-controls{
     display: none;
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 0 14px 16px 14px;
-    justify-content: space-between;
-    align-items: flex-end;
-    z-index: 10;
+    position: fixed;
+    right: 14px;
 
-    /* Only the buttons themselves catch touches. Without this the whole strip would
-       swallow taps aimed at the track behind it. */
+    /* env(safe-area-inset-bottom) clears the iPhone home indicator bar */
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+
+    /* Below the header (100) and well below the modals (999), so opening the
+       track chooser covers the controls rather than fighting with them. */
+    z-index: 90;
+
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+
+    /* Only the buttons catch touches, not the gaps in the cross shape */
     pointer-events: none;
+
+    transition: opacity 0.25s ease;
 }
 
+/* Added by touch_controls.js on touchscreen devices only */
 #touch-controls.visible{
     display: flex;
 }
 
-/* Steering on the left, forward/back on the right, so both thumbs can hold a
-   direction at the same time and diagonals stay possible. */
-.touch-cluster{
+/* Faded out while the track is scrolled off screen, so the controls do not sit on top
+   of the lap times table, the how-to-play text or the footer. */
+#touch-controls.out-of-view{
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Three rows forming a cross: up on top, left and right in the middle, down beneath */
+.touch-row{
     display: flex;
-    gap: 12px;
+    gap: 7px;
 }
 
 .touch-btn{
@@ -997,20 +1011,20 @@ footer{
     user-select: none;
     -webkit-tap-highlight-color: transparent;
 
-    /* 66px is comfortably above the ~44px minimum for a reliable thumb target */
-    width: 66px;
-    height: 66px;
+    /* 62px is comfortably above the ~44px minimum for a reliable thumb target */
+    width: 62px;
+    height: 62px;
     padding: 0;
     border-radius: 50%;
-    font-size: 30px;
+    font-size: 28px;
     line-height: 1;
 
     /* Translucent so the track stays readable underneath */
     color: var(--light_blue);
-    background: rgba(56, 189, 248, 0.12);
-    border: 2px solid rgba(125, 211, 252, 0.45);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
+    background: rgba(10, 14, 26, 0.55);
+    border: 2px solid rgba(125, 211, 252, 0.5);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
 
     display: flex;
     align-items: center;
@@ -1020,25 +1034,27 @@ footer{
 
 /* Held down. Clear enough to confirm the press without hiding the track. */
 .touch-btn.pressed{
-    background: rgba(56, 189, 248, 0.38);
+    background: rgba(56, 189, 248, 0.55);
     border-color: var(--blue);
     color: var(--white);
-    transform: scale(0.94);
+    transform: scale(0.92);
 }
 
-/* Smaller phones, where four 66px circles start crowding a narrow screen */
+/* Smaller phones, where a 62px cross starts crowding a narrow screen */
 @media (max-width: 430px){
     .touch-btn{
-        width: 58px;
-        height: 58px;
-        font-size: 26px;
-    }
-
-    .touch-cluster{
-        gap: 9px;
+        width: 56px;
+        height: 56px;
+        font-size: 25px;
     }
 
     #touch-controls{
-        padding: 0 10px 12px 10px;
+        right: 10px;
+        bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+        gap: 6px;
+    }
+
+    .touch-row{
+        gap: 6px;
     }
 }

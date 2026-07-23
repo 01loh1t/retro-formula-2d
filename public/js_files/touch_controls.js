@@ -68,3 +68,28 @@ window.addEventListener("blur", releaseAllTouchDirections);
 document.addEventListener("visibilitychange", () => {
     if (document.hidden) releaseAllTouchDirections();
 });
+
+// The controls are fixed to the screen, which means that without this they would sit on
+// top of the lap times table, the how-to-play text and the footer whenever the player
+// scrolled down to read them. Fading them out once the track leaves the screen keeps the
+// rest of the page usable, and brings them straight back when the track returns.
+const gameContainer = document.getElementById("game-container");
+
+if (touchControls && gameContainer && "IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                touchControls.classList.remove("out-of-view");
+            } else {
+                touchControls.classList.add("out-of-view");
+                // A direction held as the controls disappear would otherwise stay held.
+                releaseAllTouchDirections();
+            }
+        });
+    }, {
+        // Counts as visible while any part of the track is on screen.
+        threshold: 0
+    });
+
+    observer.observe(gameContainer);
+}
