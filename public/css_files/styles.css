@@ -956,146 +956,123 @@ footer{
 
 /*----------------------------------------------------------------------------------*/
 /* the line above is a section divider for clear viewing */
-/* ON-SCREEN TOUCH CONTROLS (game.html, phones and tablets only) */
+/* ON-SCREEN THUMBSTICK (game.html, phones and tablets only) */
 
-/* Two pads, one pinned to each bottom corner, so the phone is held in two hands with a
-   thumb resting on each. Up and down are repeated on both sides: holding the throttle
-   with one thumb while steering with the other is what makes diagonals workable.
+/* An analogue stick rather than buttons: the further the knob is pushed, the harder the
+   car accelerates, and any angle works. The thumb never leaves the glass, so a correction
+   mid-corner does not need lifting and re-placing a finger.
 
-   --btn and --pad drive the whole thing. Changing those two values resizes both pads and
-   respaces them automatically, so the media queries below only override those. */
-#touch-controls{
-    --btn: 68px;   /* diameter of one button */
-    --pad: 226px;  /* width and height of one pad */
+   --stick-base and --stick-knob drive the whole thing. The media queries below only
+   override those two values. */
+#joystick{
+    --stick-base: 168px; /* the outer ring the thumb moves within */
+    --stick-knob: 72px;  /* the knob that follows the thumb */
 
     display: none;
+    position: fixed;
 
-    /* Only the buttons catch touches, never the empty space inside a pad */
-    pointer-events: none;
+    /* Bottom right by default. To move the stick to the left instead, swap this line
+       for:   left: 24px;   */
+    right: 24px;
+
+    /* env(safe-area-inset-bottom) clears the iPhone home indicator bar */
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+
+    /* Below the header (100) and well below the modals (999), so opening the
+       track chooser covers the stick rather than fighting with it. */
+    z-index: 90;
 
     transition: opacity 0.25s ease;
 }
 
 /* Added by touch_controls.js on touchscreen devices only */
-#touch-controls.visible{
+#joystick.visible{
     display: block;
 }
 
-/* Faded out while the track is scrolled off screen, so the controls do not sit on top
+/* Faded out while the track is scrolled off screen, so the stick does not sit on top
    of the lap times table, the how-to-play text or the footer. */
-#touch-controls.out-of-view{
+#joystick.out-of-view{
     opacity: 0;
     visibility: hidden;
 }
 
-.touch-pad{
-    position: fixed;
+#joystick-base{
+    position: relative;
+    width: var(--stick-base);
+    height: var(--stick-base);
+    border-radius: 50%;
 
-    /* env(safe-area-inset-bottom) clears the iPhone home indicator bar */
-    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-
-    width: var(--pad);
-    height: var(--pad);
-
-    /* Below the header (100) and well below the modals (999), so opening the
-       track chooser covers the controls rather than fighting with them. */
-    z-index: 90;
-    pointer-events: none;
-}
-
-.touch-pad-left{  left: 16px; }
-.touch-pad-right{ right: 16px; }
-
-.touch-btn{
-    position: absolute;
-    pointer-events: auto;
-
-    /* Stops the browser scrolling the page, zooming, or selecting text when a
-       button is held down mid-corner. */
+    /* Stops the browser scrolling the page or zooming while the stick is being pushed */
     touch-action: none;
     -webkit-user-select: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
 
-    width: var(--btn);
-    height: var(--btn);
-    padding: 0;
-    border-radius: 50%;
-    font-size: calc(var(--btn) * 0.44);
-    line-height: 1;
-
     /* Translucent so the track stays readable underneath */
-    color: var(--light_blue);
-    background: rgba(10, 14, 26, 0.55);
-    border: 2px solid rgba(125, 211, 252, 0.5);
+    background: rgba(10, 14, 26, 0.45);
+    border: 2px solid rgba(125, 211, 252, 0.35);
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.08s ease, border-color 0.08s ease;
+    transition: border-color 0.15s ease;
 }
 
-/* Each button is pinned to an edge of its own pad:
-
-        left pad            right pad
-           up                   up
-        left                       right
-          down                 down                                          */
-.touch-btn[data-dir="up"]{
-    top: 0;
-    left: calc(50% - var(--btn) / 2);
+/* Brightens while the stick is in use */
+#joystick.active #joystick-base{
+    border-color: rgba(125, 211, 252, 0.7);
 }
 
-.touch-btn[data-dir="down"]{
-    bottom: 0;
-    left: calc(50% - var(--btn) / 2);
+#joystick-knob{
+    position: absolute;
+
+    /* Sits dead centre of the base. touch_controls.js then moves it with a transform,
+       which is measured from this resting position. */
+    left: 50%;
+    top: 50%;
+    margin-left: calc(var(--stick-knob) / -2);
+    margin-top: calc(var(--stick-knob) / -2);
+
+    width: var(--stick-knob);
+    height: var(--stick-knob);
+    border-radius: 50%;
+
+    background: rgba(56, 189, 248, 0.5);
+    border: 2px solid var(--light_blue);
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+
+    /* The base handles every touch, so the knob never intercepts one and interrupts
+       a drag that is already in progress. */
+    pointer-events: none;
+
+    /* Springs back to the middle when released */
+    transition: transform 0.12s ease-out, background 0.12s ease;
 }
 
-.touch-btn[data-dir="left"]{
-    left: 0;
-    top: calc(50% - var(--btn) / 2);
+/* No easing while the thumb is actually on it - the knob has to track the finger
+   exactly, or steering feels laggy. */
+#joystick.active #joystick-knob{
+    transition: background 0.12s ease;
+    background: rgba(56, 189, 248, 0.75);
 }
 
-.touch-btn[data-dir="right"]{
-    right: 0;
-    top: calc(50% - var(--btn) / 2);
-}
-
-/* Held down. Colour only, no scaling - a transform here would fight with the
-   centring above and shift the button out of position.
-   Both copies of a direction light up together, since holding either one has
-   exactly the same effect on the car. */
-.touch-btn.pressed{
-    background: rgba(56, 189, 248, 0.6);
-    border-color: var(--blue);
-    color: var(--white);
-}
-
-/* Short screens, which is what a phone held sideways gives you. Two full size pads
-   would take up most of the visible height while racing. */
+/* Short screens, which is what a phone held sideways gives you. A full size stick
+   would take up too much of the visible height while racing. */
 @media (max-height: 500px){
-    #touch-controls{
-        --btn: 62px;
-        --pad: 204px;
+    #joystick{
+        --stick-base: 140px;
+        --stick-knob: 62px;
+        right: 16px;
+        bottom: calc(14px + env(safe-area-inset-bottom, 0px));
     }
-
-    .touch-pad{
-        bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-    }
-
-    .touch-pad-left{  left: 10px; }
-    .touch-pad-right{ right: 10px; }
 }
 
-/* Narrow screens, where two pads side by side would otherwise overlap in the middle */
-@media (max-width: 560px){
-    #touch-controls{
-        --btn: 52px;
-        --pad: 170px;
+/* Narrow screens */
+@media (max-width: 430px){
+    #joystick{
+        --stick-base: 132px;
+        --stick-knob: 58px;
+        right: 14px;
+        bottom: calc(14px + env(safe-area-inset-bottom, 0px));
     }
-
-    .touch-pad-left{  left: 8px; }
-    .touch-pad-right{ right: 8px; }
 }

@@ -1,124 +1,171 @@
-// On-screen driving controls for phones and tablets.
+// Analogue thumbstick for phones and tablets.
 //
-// A touchscreen has no arrow keys, so the game was unplayable on a phone. These four
-// buttons sit over the bottom of the canvas and feed into the same movement code the
-// keyboard uses, rather than being a separate control path - so anything that works with
-// the arrow keys, including holding two directions at once, works by touch too.
+// A touchscreen has no arrow keys, so the game was unplayable on a phone. This reports a
+// direction vector rather than four on/off buttons, which means how far the knob is pushed
+// decides how hard the car accelerates - a small nudge gives a gentle correction, a full
+// push gives everything the car has. game.js merges it with the keyboard, so both inputs
+// drive exactly the same movement code.
 //
-// Loaded before game.js so that touchState exists by the time the game starts reading it.
+// Loaded before game.js so the stick exists by the time the game reads it.
 
-// Which directions are currently being held. game.js merges this with the arrow keys.
-const touchState = { left: false, right: false, up: false, down: false };
-window.touchState = touchState;
+// Current stick position, each between -1 and 1. Read every frame by game.js.
+// x is negative left / positive right, y is negative up / positive down, matching the
+// screen coordinates the game already uses.
+const stickInput = { x: 0, y: 0 };
+window.touchState = stickInput;
 
-// Up and down appear on both pads, so a direction can be held by more than one button at
-// once. Counting how many are down stops the release of one copy cancelling a direction
-// the other copy is still holding - otherwise letting go of the left pad's up button
-// would cut the throttle even with the right pad's up button still pressed.
-const heldCount = { left: 0, right: 0, up: 0, down: 0 };
+const joystick = document.getElementById("joystick");
+const joystickBase = document.getElementById("joystick-base");
+const joystickKnob = document.getElementById("joystick-knob");
 
-const touchControls = document.getElementById("touch-controls");
+// How far the thumb must move before the car responds at all. Without this the car drifts
+// from the tiny movements a resting thumb always makes.
+const DEAD_ZONE = 0.12;
+
+// Which finger is currently driving. Tracking the id means a second finger elsewhere on
+// the screen cannot hijack the stick halfway through a corner.
+let activePointerId = null;
 
 // Only shown on devices that can actually be touched. A laptop with a mouse gets nothing,
-// since the arrow keys are there and the buttons would only cover part of the track.
-// A touchscreen laptop gets them, which is harmless - the keyboard still works.
+// since the arrow keys are there and the stick would only cover part of the track.
+// A touchscreen laptop gets it, which is harmless - the keyboard still works.
 const hasTouch = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
 
-if (touchControls && hasTouch) {
-    touchControls.classList.add("visible");
+if (joystick && hasTouch) {
+    joystick.classList.add("visible");
 }
 
-// Releases every direction at once.
-// Used when the page is hidden or loses focus, because a button held at that moment would
-// otherwise never receive its "released" event and the car would drive off on its own.
-function releaseAllTouchDirections() {
-    Object.keys(touchState).forEach(direction => {
-        touchState[direction] = false;
-        heldCount[direction] = 0;
-    });
-
-    document.querySelectorAll(".touch-btn").forEach(btn => btn.classList.remove("pressed"));
+// Furthest the knob can travel from the centre, in pixels.
+function knobTravel() {
+    return (joystickBase.offsetWidth - joystickKnob.offsetWidth) / 2;
 }
 
-// Lights up every button for a direction, so both copies of up and down look the same
-// whichever one is actually being touched.
-function paintDirection(direction, isHeld) {
-    document.querySelectorAll('.touch-btn[data-dir="' + direction + '"]').forEach(btn => {
-        btn.classList.toggle("pressed", isHeld);
-    });
+// Returns the stick to centre and stops the car accelerating.
+function releaseStick() {
+    activePointerId = null;
+    stickInput.x = 0;
+    stickInput.y = 0;
+
+    if (joystickKnob) joystickKnob.style.transform = "translate(0px, 0px)";
+    if (joystick) joystick.classList.remove("active");
 }
 
-document.querySelectorAll(".touch-btn").forEach(btn => {
-    const direction = btn.dataset.dir;
+// Works out where the knob should sit and what that means for the car.
+function updateStick(event) {
+    const bounds = joystickBase.getBoundingClientRect();
+    const centreX = bounds.left + bounds.width / 2;
+    const centreY = bounds.top + bounds.height / 2;
 
-    // Guards against a second pointerdown on a button already being held, which would
-    // otherwise push the count up without a matching release and stick the direction on.
-    let heldByThisButton = false;
+    const dx = event.clientX - centreX;
+    const dy = event.clientY - centreY;
 
-    function press(e) {
-        // Stops the browser treating the touch as a scroll, a text selection or a
-        // double-tap zoom, all of which make the controls feel broken.
-        e.preventDefault();
-        if (heldByThisButton) return;
+    const distance = Math.hypot(dx, dy);
+    const travel = knobTravel();
 
-        heldByThisButton = true;
-        heldCount[direction]++;
-        touchState[direction] = true;
-        paintDirection(direction, true);
+    if (distance === 0 || travel === 0) {
+        stickInput.x = 0;
+        stickInput.y = 0;
+        joystickKnob.style.transform = "translate(0px, 0px)";
+        return;
     }
 
-    function release(e) {
-        e.preventDefault();
-        if (!heldByThisButton) return;
+    // The knob stops at the edge of the base however far the thumb slides past it.
+    const clamped = Math.min(distance, travel);
 
-        heldByThisButton = false;
-        heldCount[direction] = Math.max(0, heldCount[direction] - 1);
+    // Unit vector pointing the way the thumb is pushing.
+    const unitX = dx / distance;
+    const unitY = dy / distance;
 
-        // Only actually release the direction once no button is holding it any more.
-        touchState[direction] = heldCount[direction] > 0;
-        paintDirection(direction, touchState[direction]);
+    joystickKnob.style.transform =
+        "translate(" + (unitX * clamped) + "px, " + (unitY * clamped) + "px)";
+
+    // How far out the thumb is, from 0 at the centre to 1 at the edge.
+    let push = clamped / travel;
+
+    if (push < DEAD_ZONE) {
+        stickInput.x = 0;
+        stickInput.y = 0;
+        return;
     }
 
-    // Pointer events cover touch, pen and mouse in one set of handlers, and handle several
-    // fingers at once without any extra work - which is what makes diagonals possible.
-    btn.addEventListener("pointerdown", press);
-    btn.addEventListener("pointerup", release);
+    // Rescale so the car pulls away smoothly from just outside the dead zone, rather than
+    // jumping straight to 12% throttle the moment it is crossed.
+    push = (push - DEAD_ZONE) / (1 - DEAD_ZONE);
+
+    // Map the round stick onto the square range the keyboard produces. Holding two arrow
+    // keys gives x = 1 and y = 1 at the same time, so without this a fully pushed diagonal
+    // would accelerate about 40% slower than the same diagonal on a keyboard - which would
+    // put phone players at a real disadvantage on a shared leaderboard.
+    const squareScale = 1 / Math.max(Math.abs(unitX), Math.abs(unitY));
+
+    stickInput.x = unitX * squareScale * push;
+    stickInput.y = unitY * squareScale * push;
+}
+
+if (joystickBase) {
+
+    joystickBase.addEventListener("pointerdown", (e) => {
+        // Stops the browser treating the drag as a scroll, a text selection or a
+        // double-tap zoom, all of which make the stick feel broken.
+        e.preventDefault();
+        if (activePointerId !== null) return;
+
+        activePointerId = e.pointerId;
+
+        // Keeps this finger reporting to the stick even once it slides outside the base,
+        // which is what lets the thumb push past the edge and hold full lock.
+        joystickBase.setPointerCapture(e.pointerId);
+
+        joystick.classList.add("active");
+        updateStick(e);
+    });
+
+    joystickBase.addEventListener("pointermove", (e) => {
+        if (e.pointerId !== activePointerId) return;
+        e.preventDefault();
+        updateStick(e);
+    });
+
+    const endPointer = (e) => {
+        if (e.pointerId !== activePointerId) return;
+        e.preventDefault();
+        releaseStick();
+    };
+
+    joystickBase.addEventListener("pointerup", endPointer);
 
     // pointercancel fires when the browser takes the touch away, for example when a call
-    // comes in. Without this the direction would stay stuck on.
-    btn.addEventListener("pointercancel", release);
+    // comes in. Without this the car would keep accelerating on its own.
+    joystickBase.addEventListener("pointercancel", endPointer);
 
-    // Long-pressing a button on Android otherwise opens the context menu mid-corner.
-    btn.addEventListener("contextmenu", (e) => e.preventDefault());
-});
+    // Long-pressing otherwise opens the context menu mid-corner.
+    joystickBase.addEventListener("contextmenu", (e) => e.preventDefault());
+}
 
-// Backgrounding the tab or switching apps releases everything.
-window.addEventListener("blur", releaseAllTouchDirections);
+// Backgrounding the tab or switching apps lets go of the stick.
+window.addEventListener("blur", releaseStick);
 document.addEventListener("visibilitychange", () => {
-    if (document.hidden) releaseAllTouchDirections();
+    if (document.hidden) releaseStick();
 });
 
-// The controls are fixed to the screen, which means that without this they would sit on
-// top of the lap times table, the how-to-play text and the footer whenever the player
-// scrolled down to read them. Fading them out once the track leaves the screen keeps the
-// rest of the page usable, and brings them straight back when the track returns.
+// The stick is fixed to the screen, which means that without this it would sit on top of
+// the lap times table, the how-to-play text and the footer whenever the player scrolled
+// down to read them. Fading it out once the track leaves the screen keeps the rest of the
+// page usable, and brings it back when the track returns.
 const gameContainer = document.getElementById("game-container");
 
-if (touchControls && gameContainer && "IntersectionObserver" in window) {
+if (joystick && gameContainer && "IntersectionObserver" in window) {
     const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                touchControls.classList.remove("out-of-view");
+                joystick.classList.remove("out-of-view");
             } else {
-                touchControls.classList.add("out-of-view");
-                // A direction held as the controls disappear would otherwise stay held.
-                releaseAllTouchDirections();
+                joystick.classList.add("out-of-view");
+                // A stick held as it disappears would otherwise stay held.
+                releaseStick();
             }
         });
-    }, {
-        // Counts as visible while any part of the track is on screen.
-        threshold: 0
-    });
+    }, { threshold: 0 });
 
     observer.observe(gameContainer);
 }

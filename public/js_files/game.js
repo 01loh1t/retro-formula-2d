@@ -11,15 +11,15 @@ class Car{
     }
 
     // Handles direction input, speed limiting, velocity and friction every frame.
-    // input is a plain object of four booleans, so the car does not care whether a
-    // direction came from the keyboard or from the on-screen buttons.
+    // input.x and input.y each run from -1 to 1, so the car does not care whether a
+    // direction came from the keyboard or from the on-screen thumbstick.
     move(input, acceleration, maxSpeed){
 
-        // ACCELERATION (adds to velocity while a direction is held)
-        if(input.left) this.vx -= acceleration;
-        if(input.right) this.vx += acceleration;
-        if(input.up) this.vy -= acceleration;
-        if(input.down) this.vy += acceleration;
+        // ACCELERATION scaled by how hard the direction is being pushed.
+        // An arrow key is always fully pushed (1), while the thumbstick can sit anywhere
+        // in between - which is what allows a gentle correction instead of full lock.
+        this.vx += input.x * acceleration;
+        this.vy += input.y * acceleration;
 
         // LIMIT SPEED (clamp velocity to maximum speed in both directions)
         this.vx = Phaser.Math.Clamp(this.vx, -maxSpeed, maxSpeed);
@@ -544,18 +544,34 @@ function update(){
 
 }
 
-// Combines the arrow keys with the on-screen touch buttons into one set of directions.
-// Either input can hold a direction, and holding two at once still gives a diagonal.
+// Combines the arrow keys with the on-screen thumbstick into a single direction vector.
+// Each axis runs from -1 to 1: an arrow key gives the full amount, the stick gives however
+// far it is currently pushed.
 function getInputState(){
-    // touchState comes from touch_controls.js. Falling back to an empty object means the
+    let x = 0;
+    let y = 0;
+
+    // Arrow keys are all or nothing. Holding two opposite keys cancels out, which is what
+    // a real pair of keys would do anyway.
+    if(cursors.left.isDown)  x -= 1;
+    if(cursors.right.isDown) x += 1;
+    if(cursors.up.isDown)    y -= 1;
+    if(cursors.down.isDown)  y += 1;
+
+    // touchState comes from touch_controls.js. Falling back to a centred stick means the
     // keyboard still works normally if that file ever fails to load.
-    const touch = window.touchState || {};
+    const stick = window.touchState || {};
+    const stickX = typeof stick.x === "number" ? stick.x : 0;
+    const stickY = typeof stick.y === "number" ? stick.y : 0;
+
+    // Whichever input is pushed further wins on each axis, so a player can switch between
+    // the keyboard and the stick mid-lap without one input fighting the other.
+    if(Math.abs(stickX) > Math.abs(x)) x = stickX;
+    if(Math.abs(stickY) > Math.abs(y)) y = stickY;
 
     return {
-        left:  cursors.left.isDown  || touch.left  === true,
-        right: cursors.right.isDown || touch.right === true,
-        up:    cursors.up.isDown    || touch.up    === true,
-        down:  cursors.down.isDown  || touch.down  === true
+        x: Phaser.Math.Clamp(x, -1, 1),
+        y: Phaser.Math.Clamp(y, -1, 1)
     };
 }
 
