@@ -973,11 +973,14 @@ footer{
        track chooser covers the controls rather than fighting with them. */
     z-index: 90;
 
-    flex-direction: column;
-    align-items: center;
+    /* A 3x3 grid with the middle left empty, giving the cross shape.
+       Each button is placed by its data-dir below, so the order of the buttons in the
+       HTML makes no difference to where they end up on screen. */
+    grid-template-columns: repeat(3, auto);
+    grid-template-rows: repeat(3, auto);
     gap: 7px;
 
-    /* Only the buttons catch touches, not the gaps in the cross shape */
+    /* Only the buttons catch touches, not the empty cells of the cross */
     pointer-events: none;
 
     transition: opacity 0.25s ease;
@@ -985,7 +988,7 @@ footer{
 
 /* Added by touch_controls.js on touchscreen devices only */
 #touch-controls.visible{
-    display: flex;
+    display: grid;
 }
 
 /* Faded out while the track is scrolled off screen, so the controls do not sit on top
@@ -995,11 +998,13 @@ footer{
     visibility: hidden;
 }
 
-/* Three rows forming a cross: up on top, left and right in the middle, down beneath */
-.touch-row{
-    display: flex;
-    gap: 7px;
-}
+/* Cross layout:      up
+                   left  right
+                     down                                                    */
+.touch-btn[data-dir="up"]{    grid-column: 2; grid-row: 1; }
+.touch-btn[data-dir="left"]{  grid-column: 1; grid-row: 2; }
+.touch-btn[data-dir="right"]{ grid-column: 3; grid-row: 2; }
+.touch-btn[data-dir="down"]{  grid-column: 2; grid-row: 3; }
 
 .touch-btn{
     pointer-events: auto;
@@ -1054,7 +1059,4 @@ footer{
         gap: 6px;
     }
 
-    .touch-row{
-        gap: 6px;
-    }
 }
