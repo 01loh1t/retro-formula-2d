@@ -848,6 +848,7 @@ footer{
 
 /* Phaser game canvas container */
 #game-container{
+    position: relative; /* positioning context for the on-screen touch controls */
     width: 95%;
     height: 600px;
     background-color: black;
@@ -951,4 +952,93 @@ footer{
 /* Alternating row colours for lap times */
 .laptimes-table tbody tr:nth-child(even){
     background-color: var(--navy_blue);
+}
+
+/*----------------------------------------------------------------------------------*/
+/* the line above is a section divider for clear viewing */
+/* ON-SCREEN TOUCH CONTROLS (game.html, phones and tablets only) */
+
+/* Hidden by default. touch_controls.js adds .visible only on touchscreen devices,
+   so a laptop with a mouse keeps the full track in view and uses the arrow keys. */
+#touch-controls{
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0 14px 16px 14px;
+    justify-content: space-between;
+    align-items: flex-end;
+    z-index: 10;
+
+    /* Only the buttons themselves catch touches. Without this the whole strip would
+       swallow taps aimed at the track behind it. */
+    pointer-events: none;
+}
+
+#touch-controls.visible{
+    display: flex;
+}
+
+/* Steering on the left, forward/back on the right, so both thumbs can hold a
+   direction at the same time and diagonals stay possible. */
+.touch-cluster{
+    display: flex;
+    gap: 12px;
+}
+
+.touch-btn{
+    pointer-events: auto;
+
+    /* Stops the browser scrolling the page, zooming, or selecting text when a
+       button is held down mid-corner. */
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    /* 66px is comfortably above the ~44px minimum for a reliable thumb target */
+    width: 66px;
+    height: 66px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 30px;
+    line-height: 1;
+
+    /* Translucent so the track stays readable underneath */
+    color: var(--light_blue);
+    background: rgba(56, 189, 248, 0.12);
+    border: 2px solid rgba(125, 211, 252, 0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.08s ease, transform 0.08s ease;
+}
+
+/* Held down. Clear enough to confirm the press without hiding the track. */
+.touch-btn.pressed{
+    background: rgba(56, 189, 248, 0.38);
+    border-color: var(--blue);
+    color: var(--white);
+    transform: scale(0.94);
+}
+
+/* Smaller phones, where four 66px circles start crowding a narrow screen */
+@media (max-width: 430px){
+    .touch-btn{
+        width: 58px;
+        height: 58px;
+        font-size: 26px;
+    }
+
+    .touch-cluster{
+        gap: 9px;
+    }
+
+    #touch-controls{
+        padding: 0 10px 12px 10px;
+    }
 }

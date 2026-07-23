@@ -14,6 +14,10 @@
     <!-- game_ui.js handles page user interface. It is loaded before game.js so that variables are available to it -->
     <script src="/js_files/game_ui.js" defer></script>
 
+    <!-- touch_controls.js adds on-screen arrows for phones. Loaded before game.js so the
+         game can read the button state from its very first frame. -->
+    <script src="/js_files/touch_controls.js" defer></script>
+
     <!-- game.js contains the Phaser game engine and Car class -->
     <script src="/js_files/game.js" defer></script>
 
@@ -58,7 +62,27 @@
             <button id="startBtn">START RACE ▶</button>
 
             <!-- Phaser game canvas is injected here by game.js -->
-            <div id="game-container"></div>
+            <div id="game-container">
+
+                <!-- On-screen driving controls, shown only on touchscreen devices.
+                     touch_controls.js reveals these and reports which are being held. -->
+                <div id="touch-controls">
+
+                    <!-- Steering sits under the left thumb -->
+                    <div class="touch-cluster">
+                        <button class="touch-btn" data-dir="left" aria-label="Steer left">&#8592;</button>
+                        <button class="touch-btn" data-dir="right" aria-label="Steer right">&#8594;</button>
+                    </div>
+
+                    <!-- Forward and back sit under the right thumb, so both can be held together -->
+                    <div class="touch-cluster">
+                        <button class="touch-btn" data-dir="up" aria-label="Move up">&#8593;</button>
+                        <button class="touch-btn" data-dir="down" aria-label="Move down">&#8595;</button>
+                    </div>
+
+                </div>
+
+            </div>
 
             <!-- Information section below the game -->
             <div id="game-info">
@@ -79,7 +103,8 @@
                     <p>
                         ↑ Up &nbsp; ↓ Down &nbsp; ← Left &nbsp; → Right<br>
                         Continue pressing key(s) to accelerate, release to decelerate<br>
-                        Two buttons can be pressed simultaneously.
+                        Two buttons can be pressed simultaneously.<br>
+                        On a phone or tablet, use the on-screen arrows over the track.
                     </p>
 
 
@@ -216,9 +241,9 @@
 
                 <!-- Contact links -->
                 <ul>
-                    <li><a href="#">Phone</a></li>
-                    <li><a href="#">Email</a></li>
-                    <li><a href="#">Address</a></li>
+                    <li><a href="tel:+23059862324" target="_blank">Phone</a></li>
+                    <li><a href="mailto:lohdurb78@gmail.com" target="_blank">Email</a></li>
+                    <li><a href="https://www.google.com/maps/place/Curepipe/" target="_blank">Address</a></li>
                 </ul>
             </div>                
         </div>

@@ -10,14 +10,16 @@ class Car{
         this.vy = 0;
     }
 
-    // Handles arrow key input, speed limiting, velocity and friction every frame
-    move(cursors, acceleration, maxSpeed){
+    // Handles direction input, speed limiting, velocity and friction every frame.
+    // input is a plain object of four booleans, so the car does not care whether a
+    // direction came from the keyboard or from the on-screen buttons.
+    move(input, acceleration, maxSpeed){
 
-        // ACCELERATION (adds to velocity when key is held)
-        if(cursors.left.isDown) this.vx -= acceleration;
-        if(cursors.right.isDown) this.vx += acceleration;
-        if(cursors.up.isDown) this.vy -= acceleration;
-        if(cursors.down.isDown) this.vy += acceleration;
+        // ACCELERATION (adds to velocity while a direction is held)
+        if(input.left) this.vx -= acceleration;
+        if(input.right) this.vx += acceleration;
+        if(input.up) this.vy -= acceleration;
+        if(input.down) this.vy += acceleration;
 
         // LIMIT SPEED (clamp velocity to maximum speed in both directions)
         this.vx = Phaser.Math.Clamp(this.vx, -maxSpeed, maxSpeed);
@@ -512,7 +514,7 @@ function update(){
     previousY = car.y;
 
     // The car is moved using the Car class method
-    playerCar.move(cursors, acceleration, maxSpeed);
+    playerCar.move(getInputState(), acceleration, maxSpeed);
 
     // Global vx/vy synced with class values for stationary and off-track checks
     vx = playerCar.vx;
@@ -540,6 +542,21 @@ function update(){
     // Speed display is updated
     speedText.setText("SPEED: " + playerCar.getSpeed() + " km/h");
 
+}
+
+// Combines the arrow keys with the on-screen touch buttons into one set of directions.
+// Either input can hold a direction, and holding two at once still gives a diagonal.
+function getInputState(){
+    // touchState comes from touch_controls.js. Falling back to an empty object means the
+    // keyboard still works normally if that file ever fails to load.
+    const touch = window.touchState || {};
+
+    return {
+        left:  cursors.left.isDown  || touch.left  === true,
+        right: cursors.right.isDown || touch.right === true,
+        up:    cursors.up.isDown    || touch.up    === true,
+        down:  cursors.down.isDown  || touch.down  === true
+    };
 }
 
 // Pixel brightness detection is used to check if the car is on the grey track surface
