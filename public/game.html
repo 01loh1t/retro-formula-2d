@@ -62,27 +62,7 @@
             <button id="startBtn">START RACE ▶</button>
 
             <!-- Phaser game canvas is injected here by game.js -->
-            <div id="game-container">
-
-                <!-- On-screen driving controls, shown only on touchscreen devices.
-                     touch_controls.js reveals these and reports which are being held. -->
-                <div id="touch-controls">
-
-                    <!-- Steering sits under the left thumb -->
-                    <div class="touch-cluster">
-                        <button class="touch-btn" data-dir="left" aria-label="Steer left">&#8592;</button>
-                        <button class="touch-btn" data-dir="right" aria-label="Steer right">&#8594;</button>
-                    </div>
-
-                    <!-- Forward and back sit under the right thumb, so both can be held together -->
-                    <div class="touch-cluster">
-                        <button class="touch-btn" data-dir="up" aria-label="Move up">&#8593;</button>
-                        <button class="touch-btn" data-dir="down" aria-label="Move down">&#8595;</button>
-                    </div>
-
-                </div>
-
-            </div>
+            <div id="game-container"></div>
 
             <!-- Information section below the game -->
             <div id="game-info">
@@ -142,6 +122,32 @@
         </div>
 
     </main>
+
+    <!-- On-screen driving controls, shown only on touchscreen devices.
+         Split into two pads, one under each thumb. Up and down appear on both sides so
+         either thumb can accelerate, which is what makes diagonals comfortable: hold the
+         steering with one thumb and the throttle with the other.
+         The stylesheet pins each button by its data-dir, so the order below does not
+         affect where they land. touch_controls.js reveals these and reads the presses. -->
+    <div id="touch-controls">
+
+        <!-- Left thumb: steer left, plus its own up and down -->
+        <div class="touch-pad touch-pad-left">
+            <button class="touch-btn" data-dir="up" aria-label="Move up">&#8593;</button>
+            <button class="touch-btn" data-dir="left" aria-label="Move left">&#8592;</button>
+            <button class="touch-btn" data-dir="down" aria-label="Move down">&#8595;</button>
+        </div>
+
+        <!-- Right thumb: steer right, plus its own up and down -->
+        <div class="touch-pad touch-pad-right">
+            <button class="touch-btn" data-dir="up" aria-label="Move up">&#8593;</button>
+            <button class="touch-btn" data-dir="right" aria-label="Move right">&#8594;</button>
+            <button class="touch-btn" data-dir="down" aria-label="Move down">&#8595;</button>
+        </div>
+
+    </div>
+
+    </div>
 
     <!-- Track and team selection modal (appears after clicking SWITCH TRACK button) -->
     <div class="modal-overlay" id="trackModal">

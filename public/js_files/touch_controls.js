@@ -11,6 +11,12 @@
 const touchState = { left: false, right: false, up: false, down: false };
 window.touchState = touchState;
 
+// Up and down appear on both pads, so a direction can be held by more than one button at
+// once. Counting how many are down stops the release of one copy cancelling a direction
+// the other copy is still holding - otherwise letting go of the left pad's up button
+// would cut the throttle even with the right pad's up button still pressed.
+const heldCount = { left: 0, right: 0, up: 0, down: 0 };
+
 const touchControls = document.getElementById("touch-controls");
 
 // Only shown on devices that can actually be touched. A laptop with a mouse gets nothing,
@@ -28,26 +34,49 @@ if (touchControls && hasTouch) {
 function releaseAllTouchDirections() {
     Object.keys(touchState).forEach(direction => {
         touchState[direction] = false;
+        heldCount[direction] = 0;
     });
 
     document.querySelectorAll(".touch-btn").forEach(btn => btn.classList.remove("pressed"));
 }
 
+// Lights up every button for a direction, so both copies of up and down look the same
+// whichever one is actually being touched.
+function paintDirection(direction, isHeld) {
+    document.querySelectorAll('.touch-btn[data-dir="' + direction + '"]').forEach(btn => {
+        btn.classList.toggle("pressed", isHeld);
+    });
+}
+
 document.querySelectorAll(".touch-btn").forEach(btn => {
     const direction = btn.dataset.dir;
+
+    // Guards against a second pointerdown on a button already being held, which would
+    // otherwise push the count up without a matching release and stick the direction on.
+    let heldByThisButton = false;
 
     function press(e) {
         // Stops the browser treating the touch as a scroll, a text selection or a
         // double-tap zoom, all of which make the controls feel broken.
         e.preventDefault();
+        if (heldByThisButton) return;
+
+        heldByThisButton = true;
+        heldCount[direction]++;
         touchState[direction] = true;
-        btn.classList.add("pressed");
+        paintDirection(direction, true);
     }
 
     function release(e) {
         e.preventDefault();
-        touchState[direction] = false;
-        btn.classList.remove("pressed");
+        if (!heldByThisButton) return;
+
+        heldByThisButton = false;
+        heldCount[direction] = Math.max(0, heldCount[direction] - 1);
+
+        // Only actually release the direction once no button is holding it any more.
+        touchState[direction] = heldCount[direction] > 0;
+        paintDirection(direction, touchState[direction]);
     }
 
     // Pointer events cover touch, pen and mouse in one set of handlers, and handle several

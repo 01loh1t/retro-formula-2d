@@ -958,31 +958,19 @@ footer{
 /* the line above is a section divider for clear viewing */
 /* ON-SCREEN TOUCH CONTROLS (game.html, phones and tablets only) */
 
-/* A fixed square pad in the bottom right corner. Each button is pinned to one edge of it
-   with absolute positioning, which gives the cross shape regardless of the order the
-   buttons appear in the HTML.
+/* Two pads, one pinned to each bottom corner, so the phone is held in two hands with a
+   thumb resting on each. Up and down are repeated on both sides: holding the throttle
+   with one thumb while steering with the other is what makes diagonals workable.
 
-   --btn and --pad drive everything. Changing those two values resizes the whole cross and
-   respaces it automatically, so the media queries below only need to override them. */
+   --btn and --pad drive the whole thing. Changing those two values resizes both pads and
+   respaces them automatically, so the media queries below only override those. */
 #touch-controls{
-    --btn: 78px;   /* diameter of one button */
-    --pad: 256px;  /* width and height of the whole cross */
+    --btn: 68px;   /* diameter of one button */
+    --pad: 226px;  /* width and height of one pad */
 
     display: none;
-    position: fixed;
-    right: 16px;
 
-    /* env(safe-area-inset-bottom) clears the iPhone home indicator bar */
-    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-
-    width: var(--pad);
-    height: var(--pad);
-
-    /* Below the header (100) and well below the modals (999), so opening the
-       track chooser covers the controls rather than fighting with them. */
-    z-index: 90;
-
-    /* Only the buttons catch touches, never the empty middle of the cross */
+    /* Only the buttons catch touches, never the empty space inside a pad */
     pointer-events: none;
 
     transition: opacity 0.25s ease;
@@ -999,6 +987,24 @@ footer{
     opacity: 0;
     visibility: hidden;
 }
+
+.touch-pad{
+    position: fixed;
+
+    /* env(safe-area-inset-bottom) clears the iPhone home indicator bar */
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+
+    width: var(--pad);
+    height: var(--pad);
+
+    /* Below the header (100) and well below the modals (999), so opening the
+       track chooser covers the controls rather than fighting with them. */
+    z-index: 90;
+    pointer-events: none;
+}
+
+.touch-pad-left{  left: 16px; }
+.touch-pad-right{ right: 16px; }
 
 .touch-btn{
     position: absolute;
@@ -1031,11 +1037,12 @@ footer{
     transition: background 0.08s ease, border-color 0.08s ease;
 }
 
-/* The cross:      up
-                left  right
-                   down
+/* Each button is pinned to an edge of its own pad:
 
-   Up and down are centred horizontally, left and right centred vertically. */
+        left pad            right pad
+           up                   up
+        left                       right
+          down                 down                                          */
 .touch-btn[data-dir="up"]{
     top: 0;
     left: calc(50% - var(--btn) / 2);
@@ -1057,30 +1064,38 @@ footer{
 }
 
 /* Held down. Colour only, no scaling - a transform here would fight with the
-   centring above and shift the button out of the cross. */
+   centring above and shift the button out of position.
+   Both copies of a direction light up together, since holding either one has
+   exactly the same effect on the car. */
 .touch-btn.pressed{
     background: rgba(56, 189, 248, 0.6);
     border-color: var(--blue);
     color: var(--white);
 }
 
-/* Narrow screens */
-@media (max-width: 430px){
-    #touch-controls{
-        --btn: 70px;
-        --pad: 228px;
-        right: 12px;
-        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-    }
-}
-
-/* Short screens, which is what a phone held sideways gives you. Without this the cross
+/* Short screens, which is what a phone held sideways gives you. Two full size pads
    would take up most of the visible height while racing. */
-@media (max-height: 460px){
+@media (max-height: 500px){
     #touch-controls{
-        --btn: 66px;
-        --pad: 214px;
-        right: 12px;
+        --btn: 62px;
+        --pad: 204px;
+    }
+
+    .touch-pad{
         bottom: calc(10px + env(safe-area-inset-bottom, 0px));
     }
+
+    .touch-pad-left{  left: 10px; }
+    .touch-pad-right{ right: 10px; }
+}
+
+/* Narrow screens, where two pads side by side would otherwise overlap in the middle */
+@media (max-width: 560px){
+    #touch-controls{
+        --btn: 52px;
+        --pad: 170px;
+    }
+
+    .touch-pad-left{  left: 8px; }
+    .touch-pad-right{ right: 8px; }
 }
