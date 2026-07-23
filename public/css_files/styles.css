@@ -958,29 +958,31 @@ footer{
 /* the line above is a section divider for clear viewing */
 /* ON-SCREEN TOUCH CONTROLS (game.html, phones and tablets only) */
 
-/* Fixed to the screen rather than to the game box. The game box is 600px tall, so on a
-   phone it is taller than the visible screen - controls placed inside it scrolled away
-   as soon as the player moved down the page. Fixed keeps them under the thumb always. */
+/* A fixed square pad in the bottom right corner. Each button is pinned to one edge of it
+   with absolute positioning, which gives the cross shape regardless of the order the
+   buttons appear in the HTML.
+
+   --btn and --pad drive everything. Changing those two values resizes the whole cross and
+   respaces it automatically, so the media queries below only need to override them. */
 #touch-controls{
+    --btn: 78px;   /* diameter of one button */
+    --pad: 256px;  /* width and height of the whole cross */
+
     display: none;
     position: fixed;
-    right: 14px;
+    right: 16px;
 
     /* env(safe-area-inset-bottom) clears the iPhone home indicator bar */
-    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+
+    width: var(--pad);
+    height: var(--pad);
 
     /* Below the header (100) and well below the modals (999), so opening the
        track chooser covers the controls rather than fighting with them. */
     z-index: 90;
 
-    /* A 3x3 grid with the middle left empty, giving the cross shape.
-       Each button is placed by its data-dir below, so the order of the buttons in the
-       HTML makes no difference to where they end up on screen. */
-    grid-template-columns: repeat(3, auto);
-    grid-template-rows: repeat(3, auto);
-    gap: 7px;
-
-    /* Only the buttons catch touches, not the empty cells of the cross */
+    /* Only the buttons catch touches, never the empty middle of the cross */
     pointer-events: none;
 
     transition: opacity 0.25s ease;
@@ -988,7 +990,7 @@ footer{
 
 /* Added by touch_controls.js on touchscreen devices only */
 #touch-controls.visible{
-    display: grid;
+    display: block;
 }
 
 /* Faded out while the track is scrolled off screen, so the controls do not sit on top
@@ -998,15 +1000,8 @@ footer{
     visibility: hidden;
 }
 
-/* Cross layout:      up
-                   left  right
-                     down                                                    */
-.touch-btn[data-dir="up"]{    grid-column: 2; grid-row: 1; }
-.touch-btn[data-dir="left"]{  grid-column: 1; grid-row: 2; }
-.touch-btn[data-dir="right"]{ grid-column: 3; grid-row: 2; }
-.touch-btn[data-dir="down"]{  grid-column: 2; grid-row: 3; }
-
 .touch-btn{
+    position: absolute;
     pointer-events: auto;
 
     /* Stops the browser scrolling the page, zooming, or selecting text when a
@@ -1016,12 +1011,11 @@ footer{
     user-select: none;
     -webkit-tap-highlight-color: transparent;
 
-    /* 62px is comfortably above the ~44px minimum for a reliable thumb target */
-    width: 62px;
-    height: 62px;
+    width: var(--btn);
+    height: var(--btn);
     padding: 0;
     border-radius: 50%;
-    font-size: 28px;
+    font-size: calc(var(--btn) * 0.44);
     line-height: 1;
 
     /* Translucent so the track stays readable underneath */
@@ -1034,29 +1028,59 @@ footer{
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.08s ease, transform 0.08s ease;
+    transition: background 0.08s ease, border-color 0.08s ease;
 }
 
-/* Held down. Clear enough to confirm the press without hiding the track. */
+/* The cross:      up
+                left  right
+                   down
+
+   Up and down are centred horizontally, left and right centred vertically. */
+.touch-btn[data-dir="up"]{
+    top: 0;
+    left: calc(50% - var(--btn) / 2);
+}
+
+.touch-btn[data-dir="down"]{
+    bottom: 0;
+    left: calc(50% - var(--btn) / 2);
+}
+
+.touch-btn[data-dir="left"]{
+    left: 0;
+    top: calc(50% - var(--btn) / 2);
+}
+
+.touch-btn[data-dir="right"]{
+    right: 0;
+    top: calc(50% - var(--btn) / 2);
+}
+
+/* Held down. Colour only, no scaling - a transform here would fight with the
+   centring above and shift the button out of the cross. */
 .touch-btn.pressed{
-    background: rgba(56, 189, 248, 0.55);
+    background: rgba(56, 189, 248, 0.6);
     border-color: var(--blue);
     color: var(--white);
-    transform: scale(0.92);
 }
 
-/* Smaller phones, where a 62px cross starts crowding a narrow screen */
+/* Narrow screens */
 @media (max-width: 430px){
-    .touch-btn{
-        width: 56px;
-        height: 56px;
-        font-size: 25px;
-    }
-
     #touch-controls{
-        right: 10px;
-        bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-        gap: 6px;
+        --btn: 70px;
+        --pad: 228px;
+        right: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     }
+}
 
+/* Short screens, which is what a phone held sideways gives you. Without this the cross
+   would take up most of the visible height while racing. */
+@media (max-height: 460px){
+    #touch-controls{
+        --btn: 66px;
+        --pad: 214px;
+        right: 12px;
+        bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    }
 }
