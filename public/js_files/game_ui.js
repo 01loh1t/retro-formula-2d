@@ -104,10 +104,17 @@ function updateLapTable(lapTimes){
 
 //--------------------------------------------------------------------------------------------
 
-// Resize listener updates the Phaser canvas size when browser window is resized
+// Resize listener updates the Phaser canvas size when the browser window is resized.
+// This is for laptops and desktops, where the canvas width tracks the container width.
+// On touch devices the game uses Phaser's FIT scale mode (set in game.js), which resizes
+// itself - so this handler steps aside there to avoid the two fighting over the canvas.
 window.addEventListener("resize", () => {
     // game is created in game.js. Guard in case a resize fires before it exists.
     if(typeof game === "undefined" || !game.scale) return;
+
+    // FIT mode owns resizing on touch devices; nothing to do here.
+    const isTouchDevice = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
+    if(isTouchDevice) return;
 
     const newWidth = document.getElementById("game-container").offsetWidth;
     game.scale.resize(newWidth, 600);

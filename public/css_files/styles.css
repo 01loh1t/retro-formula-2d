@@ -971,12 +971,13 @@ footer{
     display: none;
     position: fixed;
 
-    /* Bottom right by default. To move the stick to the left instead, swap this line
-       for:   left: 24px;   */
-    right: 24px;
+    /* Bottom right, nudged in and up a little from the corner so it sits more comfortably
+       under the thumb. Larger 'right' moves it left; larger 'bottom' moves it up.
+       To move the stick to the left side instead, swap the right line for:  left: 42px;  */
+    right: 42px;
 
     /* env(safe-area-inset-bottom) clears the iPhone home indicator bar */
-    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(42px + env(safe-area-inset-bottom, 0px));
 
     /* Below the header (100) and well below the modals (999), so opening the
        track chooser covers the stick rather than fighting with it. */
@@ -1062,8 +1063,8 @@ footer{
     #joystick{
         --stick-base: 140px;
         --stick-knob: 62px;
-        right: 16px;
-        bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        right: 34px;
+        bottom: calc(32px + env(safe-area-inset-bottom, 0px));
     }
 }
 
@@ -1072,7 +1073,7 @@ footer{
     #joystick{
         --stick-base: 132px;
         --stick-knob: 58px;
-        right: 14px;
-        bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        right: 30px;
+        bottom: calc(32px + env(safe-area-inset-bottom, 0px));
     }
 }

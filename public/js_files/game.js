@@ -119,6 +119,12 @@ let offCtx;
 //--------------------------------------------------------------------------------------------
 // PHASER CONFIGURATION
 
+// Touch devices (phones, tablets) get a canvas that scales to fit the space, so the whole
+// game stays visible instead of the fixed 600px height spilling off a short screen.
+// A laptop with a mouse keeps the original fixed canvas exactly as before - nothing about
+// the desktop view changes.
+const isTouchDevice = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
+
 const config = {
     type: Phaser.AUTO,
     width: document.getElementById("game-container").offsetWidth,
@@ -137,6 +143,19 @@ const config = {
         }
     }
 };
+
+// On touch devices, let Phaser fit the fixed-shape game into whatever room the screen has.
+// FIT preserves the aspect ratio and adds a little empty margin rather than cutting the
+// track off or squashing the car. CENTER_BOTH keeps that margin balanced around the game.
+if(isTouchDevice){
+    config.scale = {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        parent: "game-container",
+        width: document.getElementById("game-container").offsetWidth,
+        height: 600
+    };
+}
 
 const game = new Phaser.Game(config);
 
