@@ -22,6 +22,12 @@
 /* Global body and layout applied to all pages */
 
 /* Diagonal stripe background pattern - technique from css-tricks.com/stripes-css/ */
+/* overflow-x on html as well as body. On mobile browsers, body alone does not always
+   stop a wide child from causing sideways scroll - html has to clip it too. */
+html{
+    overflow-x: hidden;
+}
+
 body{
     background: repeating-linear-gradient(
         45deg,
@@ -157,6 +163,10 @@ footer{
     display: flex;
     justify-content: space-around;
     border-top: 5px solid var(--dark_blue);
+
+    /* Without this the three columns refuse to wrap and force the row wider than a phone
+       screen, which pushes the whole page sideways. Wrapping lets them stack instead. */
+    flex-wrap: wrap;
 }
 
 /* Footer column with links */
