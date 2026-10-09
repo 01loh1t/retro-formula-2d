@@ -1,113 +1,42 @@
 # Retro Formula 2D
 
-A 2D top-down Formula racing game with player accounts, saved lap times and live rankings.
+A 2D top-down Formula racing game with player accounts, server-timed lap records, and a global leaderboard shared by everyone who plays.
 
-Three tracks (Monza, Silverstone, Monaco), six teams, and a leaderboard shared by everyone
-who plays. Built with vanilla HTML, CSS and JavaScript on the front end, Phaser 3 for the
-game itself, and Node/Express with PostgreSQL behind it.
+Three tracks (Monza, Silverstone, Monaco), six teams, and rankings that update live across every player. Built as a browser game with a real backend behind it: vanilla HTML/CSS/JS and Phaser 3 on the front end, Node/Express and PostgreSQL on the server.
 
----
+> **Note:** This started as a coursework project that ran entirely in the browser. I rebuilt it into a full client–server application, which meant solving the hard part of any online game: **you cannot trust anything the player's browser tells you.** The sections below on authentication and anti-cheat are where most of that work went.
 
-## What changed from the coursework version
+<!--
+  TIP: Add a screenshot or GIF here — it has more impact than anything else in this file.
+  Record 5–10 seconds of gameplay, save it as docs/demo.gif, and uncomment:
 
-The game, the look and the page layouts are the same. What moved is where the data lives.
+  ![Gameplay demo](docs/demo.gif)
+-->
 
-| | Coursework version | This version |
-|---|---|---|
-| Accounts | `localStorage` in one browser | PostgreSQL, shared by everyone |
-| Passwords | Stored as plain text | bcrypt hashes, never reversible |
-| Login | A username in `sessionStorage` | Signed httpOnly cookie |
-| Rankings | Only players on that one computer | Every player, sorted in the database |
-| Lap times | Whatever the browser reported | Timed by the server and checked |
-| Validation | In the browser only | Browser **and** server |
+## Highlights
 
-The reason for most of these is the same: once the site is online, anything running in the
-browser belongs to the player, and some players will edit it. Every rule that decides
-whether a lap counts now runs somewhere they cannot reach.
+- **Server-authoritative lap timing** — the server runs its own clock for every lap and rejects times the browser couldn't actually have produced, so the leaderboard can't be faked from the dev console.
+- **Proper authentication** — passwords stored as bcrypt hashes (never plain text), sessions carried in a signed, httpOnly cookie rather than browser storage.
+- **One shared source of truth** — accounts, lap times, and rankings all live in PostgreSQL, so every player competes on the same leaderboard instead of a per-browser one.
+- **Validation on both sides** — the browser checks input for a fast response; the server re-checks everything, because browser rules belong to the player.
 
----
+## Features
 
-## Running it on your own machine
+- Three distinct tracks and six selectable teams
+- Account registration and login
+- Personal best times and per-track stats
+- A global leaderboard sorted in the database across all players
+- Rate limiting to block password guessing and account spam
 
-You need Node.js 18 or newer and a PostgreSQL database. You do not have to install
-PostgreSQL locally — a free hosted one is quicker and means your local setup matches
-production exactly.
+## Tech stack
 
-**1. Get a database.** Sign up at [neon.com](https://neon.com) (free tier, no card) and
-create a project. Copy the connection string it gives you, which looks like:
-
-```
-postgresql://user:password@ep-something.eu-central-1.aws.neon.tech/neondb?sslmode=require
-```
-
-**2. Configure the app.**
-
-```bash
-cp .env.example .env
-```
-
-Open `.env` and paste your connection string into `DATABASE_URL`. Then generate a secret
-for signing login cookies and paste it into `JWT_SECRET`:
-
-```bash
-node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
-```
-
-**3. Add your assets.** Copy your `assets` folder into `public/assets/`. See
-`public/assets/README.md` for the structure and two filename traps worth avoiding.
-
-**4. Start it.**
-
-```bash
-npm install
-npm start
-```
-
-Open <http://localhost:3000>. The database tables are created automatically on first run.
-
-While developing, `npm run dev` restarts the server whenever you save a file.
-
----
-
-## Deploying it
-
-### GitHub Pages will not work for this
-
-Worth saying plainly, since it is the obvious first thing to try. GitHub Pages only serves
-static files. It cannot run Node, and it cannot talk to a database. The original coursework
-version would have worked there; this one needs somewhere that runs a server.
-
-Use GitHub to **store** the code, and one of the hosts below to **run** it.
-
-### Render (free tier, straightforward)
-
-1. Push this folder to a GitHub repository.
-2. On [render.com](https://render.com), create a **New Web Service** and connect the repo.
-3. Settings:
-   - Build command: `npm install`
-   - Start command: `npm start`
-4. Under **Environment**, add:
-   - `DATABASE_URL` — your Neon connection string
-   - `JWT_SECRET` — the secret you generated
-   - `NODE_ENV` — `production`
-5. Deploy. Render gives you a `.onrender.com` address to test on.
-
-Railway and Fly.io work the same way if you prefer them.
-
-**One thing about the free tier:** it sleeps after inactivity, so the first visit after a
-quiet spell takes 30 seconds or so to wake up. Fine for testing, worth paying to remove
-before you tell people about it.
-
-### Pointing your domain at it
-
-Once you have bought the domain, add it under **Settings → Custom Domain** on Render and
-create the DNS record it asks for at your registrar. HTTPS certificates are issued
-automatically. Nothing in the code needs to change.
-
-Do set `NODE_ENV=production` before going live — it is what makes the login cookie
-HTTPS-only.
-
----
+| Layer | Used |
+|---|---|
+| Game engine | Phaser 3 |
+| Front end | Vanilla HTML, CSS, JavaScript |
+| Server | Node.js, Express |
+| Database | PostgreSQL |
+| Auth | bcrypt, signed httpOnly cookies (JWT) |
 
 ## How it fits together
 
@@ -124,114 +53,89 @@ Phaser game   ──── fetch ────>   /api/laps/start     ───�
 rankings.js   ──── fetch ────>   /api/rankings       ────>     lap_times + users
 ```
 
-### Files
+## How lap times are protected
+
+The browser measures the lap, and the browser belongs to the player. Anyone who opens the developer console can call the submit function with any number they like. So the server keeps its own clock:
+
+1. The car crosses the line to start a lap. The browser calls `POST /api/laps/start`; the server records the current time and returns a one-use session id.
+2. The car crosses the line to finish. The browser sends its lap time and that session id.
+3. The server compares the submitted time against the time it actually measured, and accepts the lap only if the two agree.
+
+A lap is rejected when it is faster than the track's minimum, more than the clock tolerance ahead of the server's own measurement, longer than the maximum, or tied to a session id that was already used, unknown, or expired. The team recorded against a lap comes from the account, not the browser, so nobody appears under a team they never picked.
+
+This **bounds** cheating rather than eliminating it: the tolerance that keeps honest players on slow connections from being wrongly rejected is also the most anyone can shave off undetected. Closing that gap entirely would mean simulating the car server-side, which is a much larger piece of work than this project's scale justifies — a tradeoff I made deliberately rather than by omission.
+
+## Running it locally
+
+You need Node.js 18+ and a PostgreSQL database. You don't have to install PostgreSQL — a free hosted one is quicker and makes your local setup match production.
+
+1. **Get a database.** Sign up at [neon.com](https://neon.com) (free tier, no card) and create a project. Copy the connection string, which looks like:
+   ```
+   postgresql://user:password@ep-something.eu-central-1.aws.neon.tech/neondb?sslmode=require
+   ```
+
+2. **Configure the app.**
+   ```
+   cp .env.example .env
+   ```
+   Paste your connection string into `DATABASE_URL`, then generate a cookie-signing secret and paste it into `JWT_SECRET`:
+   ```
+   node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+   ```
+
+3. **Add your assets.** Copy your assets folder into `public/assets/` (see `public/assets/README.md` for the structure).
+
+4. **Start it.**
+   ```
+   npm install
+   npm start
+   ```
+   Open `http://localhost:3000`. Tables are created automatically on first run. During development, `npm run dev` restarts the server on save.
+
+## Deploying
+
+GitHub Pages won't work — it only serves static files and can't run Node or reach a database. Use GitHub to store the code and a host that runs a server to run it.
+
+**On [Render](https://render.com) (free tier):**
+
+1. Push this folder to a GitHub repo.
+2. Create a new **Web Service** and connect the repo.
+3. Build command `npm install`, start command `npm start`.
+4. Add environment variables: `DATABASE_URL`, `JWT_SECRET`, and `NODE_ENV=production`.
+5. Deploy.
+
+Railway and Fly.io work the same way. Note the free tier sleeps after inactivity, so the first visit after a quiet spell takes ~30 seconds to wake. Setting `NODE_ENV=production` is what makes the login cookie HTTPS-only.
+
+## Project structure
 
 ```
 server/
   server.js          Express setup, static files, security headers, error handling
-  db.js              Connection pool and the query helper
-  schema.sql         Table definitions, run automatically on every start
-  config.js          Valid tracks and teams, lap time limits  ← tune this one
-  validation.js      Sign up rules, shared shape with the browser's checks
+  db.js              Connection pool and query helper
+  schema.sql         Table definitions, run on every start
+  config.js          Valid tracks and teams, lap time limits
+  validation.js      Sign-up rules, shared shape with the browser's checks
   middleware/auth.js Login cookies: signing, reading, requiring
-  routes/auth.js     Register, log in, log out, who am I, save team
-  routes/laps.js     Start a lap, submit a lap, personal stats
-  routes/rankings.js The leaderboard query
+  routes/            auth.js, laps.js, rankings.js
 
 public/
-  index.html         Home page, sign up and login modals, track selection
+  index.html         Home page, sign up / login, track selection
   game.html          The game
   rankings.html      Leaderboard
-  css_files/         Your stylesheet, unchanged
-  js_files/
-    api.js           Shared fetch wrapper used by every page
-    registration_login.js
-    script.js        Home page behaviour
-    game_ui.js       Game page UI, personal stats, switch track
-    game.js          Phaser game, Car class, lap timing
-    rankings.js      Leaderboard table
-    ui_effects.js    Smooth scrolling
-  assets/            Your images, sounds and logos
+  css_files/         Stylesheets
+  js_files/          api.js, game.js (Phaser + lap timing), rankings.js, and page UI
+  assets/            Images, sounds, logos
 ```
 
-### The database
+The database uses three tables. Personal bests and rankings are calculated from `lap_times` rather than stored separately, so there's no second copy of the truth to drift out of sync: `users` (one row per account, holds a bcrypt hash), `lap_times` (one row per completed lap), and `lap_sessions` (one row per lap in progress, used for the timing check).
 
-Three tables. Personal bests and rankings are **calculated** from `lap_times` rather than
-stored separately, so there is no second copy of the truth to drift out of sync.
+## Roadmap
 
-- `users` — one row per account. Holds a bcrypt hash, never a password.
-- `lap_times` — one row per completed lap.
-- `lap_sessions` — one row per lap in progress, used for the timing check below.
+- Per-track minimum lap times tuned to real honest laps (currently a placeholder)
+- Password reset (needs an email service)
+- Email confirmation at sign-up
+- Scheduled database backups
 
----
+## License
 
-## How lap times are protected
-
-The browser measures the lap, and the browser belongs to the player. Someone who opens the
-developer console can call the submit function with any number they like. So the server
-runs its own clock alongside:
-
-1. The car crosses the line to start a lap. The browser calls `POST /api/laps/start`, and
-   the server writes down the current time and hands back a one-use session id.
-2. The car crosses the line to finish. The browser sends its lap time and that session id.
-3. The server compares the submitted time against the time it actually measured, and
-   accepts the lap only if the two agree.
-
-A submitted lap is rejected when:
-
-- it is faster than `MIN_LAP_TIME` for that track,
-- it is more than `CLOCK_TOLERANCE.behindServer` seconds faster than the server measured,
-- the session id was already used, is unknown, or has expired,
-- the lap took longer than `MAX_LAP_TIME`.
-
-The team stored against a lap comes from the account, not from the browser, so nobody can
-appear in the rankings under a team they never picked.
-
-### What this does not do
-
-It bounds cheating rather than eliminating it. `behindServer` is set to 2 seconds, which is
-the slack needed to avoid rejecting honest laps from players on slow connections — and it
-is therefore also the most anyone can shave off a lap undetected. On a 40-second lap that
-is a 5% advantage.
-
-Two things narrow that gap, in order of value:
-
-1. **Set `MIN_LAP_TIME` per track properly** in `server/config.js`. Right now all three sit
-   at a placeholder 10 seconds. Drive each track, take your best honest lap, and set the
-   minimum just under it. This is the single most effective change you can make.
-2. **Lower `behindServer`** once you see how your players' connections behave. Every second
-   you remove is a second a cheat cannot use — but set it too low and honest players on bad
-   networks start losing valid laps.
-
-Eliminating it entirely would mean the server simulating the car and validating the whole
-driving input stream, which is a much larger piece of work and not worth it at this scale.
-
-Worth knowing: the invisible shortcut walls and the pixel-based track limits both still run
-purely in the browser, so a determined player could disable them. The timing check is what
-stops that turning into a leaderboard time, since cutting the track still has to produce a
-lap that survives the minimum-time check.
-
----
-
-## Tuning
-
-Almost everything you will want to adjust is in `server/config.js`: valid tracks and teams,
-minimum and maximum lap times, timing tolerance, and how long an abandoned lap session
-lives before it expires.
-
-Rate limits live at the top of `server/routes/auth.js` and `server/routes/laps.js`. The
-current limits are 20 login attempts per 15 minutes and 10 new accounts per hour from one
-address, which stops password guessing without getting in a real player's way.
-
----
-
-## Things worth doing before you tell people about it
-
-Not needed to deploy, but they will come up:
-
-- **A way to reset a forgotten password.** Right now there is none, and you will get asked.
-  It needs an email service, so it is a proper piece of work rather than a quick fix.
-- **Confirm email addresses at sign up.** Nothing currently checks that an address is real.
-- **A backup schedule for the database.** Neon and Render both offer this; turn it on before
-  there is anything worth losing.
-- **Set the per-track minimum lap times**, as above.
+Released under the **GNU General Public License v3.0** — see [`LICENSE`](LICENSE). You're welcome to read and learn from this code; anything built on it must remain open-source under the same license.
